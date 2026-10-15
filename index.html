@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โรงพยาบาลสัตว์นิธิพันธ์สัตวแพทย์ - ระบบจัดการคิวและตารางนัดหมาย</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Font (Prompt) -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#F4F7F4] text-[#1E3A2F] min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#E2EBE5] border-b border-[#C8DCD0] px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-[#2D6A4F] flex items-center justify-center text-white font-bold shadow-sm">
+                🐾
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-[#1B4332]">โรงพยาบาลสัตว์นิธิพันธ์สัตวแพทย์</h1>
+                <p class="text-xs text-[#40916C]">ระบบจัดการคิวและตารางนัดหมายอัจฉริยะ</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="bg-white/80 border border-[#C8DCD0] px-3.5 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
+                <span>📅</span> วันจันทร์ที่ 12 ตุลาคม 2026
+            </div>
+            <div class="text-[#2D6A4F] font-medium hidden sm:block">
+                ผู้ใช้งาน : <span class="font-bold text-[#1B4332]">ฝ่ายเวชระเบียน</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- Top Toolbar: Search & Action -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#D8E6DD]">
+            <div class="relative w-full md:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
+                <!-- ช่องค้นหาอัจฉริยะ -->
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ค้นหาชื่อสัตว์เลี้ยง / เจ้าของ / เบอร์โทร" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <button onclick="openAddModal()" class="bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-2 cursor-pointer">
+                    <span class="text-lg leading-none">+</span> เพิ่มนัดหมายใหม่
+                </button>
+                <button onclick="refreshData()" class="p-2.5 bg-[#F0F5F1] hover:bg-[#E2EBE5] border border-[#D8E6DD] rounded-xl text-[#2D6A4F] transition cursor-pointer" title="รีเฟรชข้อมูล">
+                    🔄
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Summary Bar -->
+        <div class="flex items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
+            <span class="text-base">📌</span>
+            <span class="font-semibold">สรุปสถานะวันนี้ :</span>
+            <span id="countPending" class="text-[#52B788] font-medium">รอดำเนินการ (0)</span> | 
+            <span id="countChecking" class="text-[#2D6A4F] font-medium">กำลังตรวจ (0)</span> | 
+            <span id="countDone" class="text-[#1B4332] font-medium">เสร็จสิ้น (0)</span> | 
+            <span class="text-gray-500 font-medium">ยกเลิก (0)</span>
+        </div>
+
+        <!-- Queue Table Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-[#D8E6DD] overflow-hidden flex-1 flex flex-col">
+            <div class="overflow-x-auto">
+                <table id="queueTable" class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
+                            <th class="py-3.5 px-4 font-semibold">🕒 เวลา</th>
+                            <th class="py-3.5 px-4 font-semibold">🐾 ชื่อสัตว์เลี้ยง/สายพันธุ์</th>
+                            <th class="py-3.5 px-4 font-semibold">👤 ชื่อเจ้าของ / เบอร์โทร</th>
+                            <th class="py-3.5 px-4 font-semibold">📋 ประเภทบริการ</th>
+                            <th class="py-3.5 px-4 font-semibold">🩺 สัตวแพทย์ผู้ตรวจ</th>
+                            <th class="py-3.5 px-4 font-semibold">📊 สถานะคิว</th>
+                            <th class="py-3.5 px-4 font-semibold text-center">⚙️ การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-[#E9F2EC] text-sm text-[#1E3A2F]">
+                        <!-- ข้อมูลจะถูกเรนเดอร์ผ่าน JavaScript อัตโนมัติ -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-4 border-t border-[#D8E6DD] flex items-center justify-between text-xs text-gray-500 bg-[#FAFCFA]">
+                <span id="recordCount">แสดงข้อมูลทั้งหมดในระบบ</span>
+                <div class="flex space-x-1">
+                    <button class="px-3 py-1 bg-white border border-[#D8E6DD] rounded-lg font-medium text-[#2D6A4F]">1</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal เพิ่ม/แก้ไขนัดหมาย -->
+    <div id="appointment-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#D8E6DD]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="font-bold text-lg text-[#1B4332]">เพิ่มนัดหมายใหม่</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold cursor-pointer">✕</button>
+            </div>
+            <div class="space-y-4 text-sm">
+                <input type="hidden" id="editIndex" value="-1">
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">🐾 ชื่อสัตว์เลี้ยง / สายพันธุ์</label>
+                    <input type="text" id="inputPet" placeholder="เช่น น้องหมีพู (ชิทู)" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">👤 ชื่อเจ้าของ / เบอร์โทรศัพท์</label>
+                    <input type="text" id="inputOwner" placeholder="เช่น คุณสมชาย (081-234-5678)" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">📅 วันที่นัดหมาย</label>
+                    <input type="date" id="inputDate" value="2026-10-12" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332] bg-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-gray-600 text-xs mb-1 font-medium">🕒 เวลาเริ่มต้น</label>
+                        <input type="time" id="inputTimeStart" value="10:00" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332] bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-xs mb-1 font-medium">🕒 เวลาสิ้นสุด</label>
+                        <input type="time" id="inputTimeEnd" value="12:00" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332] bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">📋 ประเภทบริการ</label>
+                    <select id="inputService" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] bg-white text-[#1B4332]">
+                        <option>🩺 ตรวจสุขภาพประจำปี</option>
+                        <option>💉 ฉีดวัคซีนรวม</option>
+                        <option>💊 ทำแผล / ฉีดยา</option>
+                        <option>🛁 อาบน้ำตัดขน</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">🩺 สัตวแพทย์ผู้ตรวจ</label>
+                    <select id="inputDoctor" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] bg-white text-[#1B4332]">
+                        <option>นพ.สพ.สมชาย</option>
+                        <option>สพ.ญ.วิไล</option>
+                        <option>ทีม Grooming</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-xs mb-1 font-medium">📊 สถานะคิว</label>
+                    <select id="inputStatus" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] bg-white text-[#1B4332]">
+                        <option value="รอเข้ารับบริการ">⏳ รอเข้ารับบริการ</option>
+                        <option value="กำลังตรวจ">🟢 กำลังตรวจ</option>
+                        <option value="เสร็จสิ้น">✓ เสร็จสิ้น</option>
+                    </select>
+                </div>
+                <div class="pt-3 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 border border-[#D8E6DD] rounded-xl text-gray-600 hover:bg-gray-50 cursor-pointer">ยกเลิก</button>
+                    <button onclick="saveAppointment()" class="px-5 py-2 bg-[#2D6A4F] text-white rounded-xl hover:bg-[#1B4332] shadow-sm cursor-pointer font-medium">บันทึกข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-[#52B788] bg-[#E2EBE5]/50 border-t border-[#C8DCD0]">
+        Nitiphan Animal Hospital Management System • GitHub Pages Ready
+    </footer>
+
+    <!-- JavaScript สำหรับระบบจัดการคิว, ค้นหา, แก้ไข และลบ -->
+    <script>
+        // ข้อมูลตัวอย่างเริ่มต้น
+        let appointments = [
+            { time: "10:00-12:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
+            { time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
+            { time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
+            { time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" }
+        ];
+
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            tableBody.innerHTML = '';
+
+            let filtered = appointments.filter(item => 
+                item.pet.toLowerCase().includes(searchInput) || 
+                item.owner.toLowerCase().includes(searchInput)
+            );
+
+            let countPending = 0, countChecking = 0, countDone = 0;
+
+            appointments.forEach(item => {
+                if(item.status === "รอเข้ารับบริการ") countPending++;
+                if(item.status === "กำลังตรวจ") countChecking++;
+                if(item.status === "เสร็จสิ้น") countDone++;
+            });
+
+            document.getElementById('countPending').innerText = `รอดำเนินการ (${countPending})`;
+            document.getElementById('countChecking').innerText = `กำลังตรวจ (${countChecking})`;
+            document.getElementById('countDone').innerText = `เสร็จสิ้น (${countDone})`;
+            document.getElementById('recordCount').innerText = `แสดง ${filtered.length} จากทั้งหมด ${appointments.length} รายการ`;
+
+            filtered.forEach((item) => {
+                let realIndex = appointments.indexOf(item);
+                let badgeClass = "bg-[#D8F3DC] text-[#1B4332]";
+                if(item.status === "กำลังตรวจ") badgeClass = "bg-[#52B788] text-white";
+                if(item.status === "เสร็จสิ้น") badgeClass = "bg-[#2D6A4F] text-white";
+
+                let row = document.createElement('tr');
+                row.className = "hover:bg-[#F8FAF8] transition";
+                row.innerHTML = `
+                    <td class="py-3.5 px-4 font-medium">${item.time}</td>
+                    <td class="py-3.5 px-4 font-medium">${item.pet}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${item.owner}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${item.service}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${item.doctor}</td>
+                    <td class="py-3.5 px-4"><span class="${badgeClass} px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">${item.status === 'เสร็จสิ้น' ? '✓' : item.status === 'กำลังตรวจ' ? '🟢' : '⏳'} ${item.status}</span></td>
+                    <td class="py-3.5 px-4 text-center space-x-1">
+                        <button onclick="openEditModal(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="แก้ไขข้อมูล">✏️</button>
+                        <button onclick="deleteAppointment(${realIndex})" class="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition cursor-pointer" title="ลบรายการ">🗑️</button>
+                        <button class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="ส่งต่อ">➡️</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "เพิ่มนัดหมายใหม่";
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('inputPet').value = "";
+            document.getElementById('inputOwner').value = "";
+            document.getElementById('inputTimeStart').value = "10:00";
+            document.getElementById('inputTimeEnd').value = "11:00";
+            document.getElementById('inputStatus').value = "รอเข้ารับบริการ";
+            document.getElementById('appointment-modal').classList.remove('hidden');
+            document.getElementById('appointment-modal').classList.add('flex');
+        }
+
+        function openEditModal(index) {
+            let item = appointments[index];
+            document.getElementById('modalTitle').innerText = "แก้ไขข้อมูลนัดหมาย";
+            document.getElementById('editIndex').value = index;
+            document.getElementById('inputPet').value = item.pet;
+            document.getElementById('inputOwner').value = item.owner;
+            
+            let times = item.time.split('-');
+            if(times.length === 2) {
+                document.getElementById('inputTimeStart').value = times[0].trim();
+                document.getElementById('inputTimeEnd').value = times[1].trim();
+            }
+
+            document.getElementById('inputService').value = item.service;
+            document.getElementById('inputDoctor').value = item.doctor;
+            document.getElementById('inputStatus').value = item.status;
+
+            document.getElementById('appointment-modal').classList.remove('hidden');
+            document.getElementById('appointment-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('appointment-modal').classList.remove('flex');
+            document.getElementById('appointment-modal').classList.add('hidden');
+        }
+
+        function saveAppointment() {
+            let editIndex = parseInt(document.getElementById('editIndex').value);
+            let pet = document.getElementById('inputPet').value.trim();
+            let owner = document.getElementById('inputOwner').value.trim();
+            let timeStart = document.getElementById('inputTimeStart').value;
+            let timeEnd = document.getElementById('inputTimeEnd').value;
+            let service = document.getElementById('inputService').value;
+            let doctor = document.getElementById('inputDoctor').value;
+            let status = document.getElementById('inputStatus').value;
+
+            if(!pet || !owner) {
+                alert('กรุณากรอกชื่อสัตว์เลี้ยงและชื่อเจ้าของให้ครบถ้วน');
+                return;
+            }
+
+            let newItem = {
+                time: `${timeStart}-${timeEnd}`,
+                pet: pet,
+                owner: owner,
+                service: service,
+                doctor: doctor,
+                status: status
+            };
+
+            if(editIndex === -1) {
+                appointments.unshift(newItem); // เพิ่มรายการใหม่ไว้บนสุด
+            } else {
+                appointments[editIndex] = newItem; // อัปเดตรายการเดิม
+            }
+
+            closeModal();
+            renderTable();
+        }
+
+        function deleteAppointment(index) {
+            if(confirm('คุณต้องการลบรายการนัดหมายนี้ใช่หรือไม่?')) {
+                appointments.splice(index, 1);
+                renderTable();
+            }
+        }
+
+        function refreshData() {
+            document.getElementById('searchInput').value = '';
+            renderTable();
+            alert('รีเฟรชข้อมูลคิวล่าสุดเรียบร้อยแล้ว');
+        }
+
+        // โหลดตารางครั้งแรกเมื่อเปิดหน้าเว็บ
+        renderTable();
+    </script>
+</body>
+</html>
