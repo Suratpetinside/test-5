@@ -30,7 +30,7 @@
             <div class="bg-white/90 border border-[#C8DCD0] px-4 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
                 <span>📅</span> 
                 <span>เลือกวันที่:</span>
-                <input type="date" id="filterDate" value="2026-10-15" onchange="renderTable()" class="bg-transparent text-[#1B4332] font-bold focus:outline-none cursor-pointer">
+                <input type="date" id="filterDate" value="2026-10-15" onchange="currentPage = 1; renderTable()" class="bg-transparent text-[#1B4332] font-bold focus:outline-none cursor-pointer">
             </div>
             <div class="text-[#2D6A4F] font-medium hidden sm:block">
                 ผู้ใช้งาน : <span class="font-bold text-[#1B4332]">ฝ่ายเวชระเบียน</span>
@@ -41,18 +41,12 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
         
-        <!-- Top Toolbar: Search, Patient List & Action -->
+        <!-- Top Toolbar: Search & Action -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#D8E6DD]">
-            <div class="flex items-center gap-3 w-full md:w-auto flex-1">
-                <div class="relative w-full md:w-96">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
-                    <!-- ช่องค้นหาอัจฉริยะ -->
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ค้นหาชื่อสัตว์เลี้ยง / เจ้าของ / เบอร์โทร" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
-                </div>
-                <!-- ปุ่มคนไข้ทั้งหมด -->
-                <button onclick="openPatientModal()" class="bg-[#E9F2EC] hover:bg-[#D8E6DD] text-[#1B4332] px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-2 cursor-pointer border border-[#C8DCD0] whitespace-nowrap">
-                    <span>🐶</span> คนไข้ทั้งหมด
-                </button>
+            <div class="relative w-full md:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
+                <!-- ช่องค้นหาอัจฉริยะ -->
+                <input type="text" id="searchInput" onkeyup="currentPage = 1; renderTable()" placeholder="ค้นหาชื่อสัตว์เลี้ยง / เจ้าของ / เบอร์โทร" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
             </div>
             <div class="flex items-center gap-3 w-full md:w-auto justify-end">
                 <button onclick="openAddModal()" class="bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-2 cursor-pointer">
@@ -64,7 +58,7 @@
             </div>
         </div>
 
-        <!-- Status Summary Bar -->
+        <!-- Status Summary Bar (ปรับปรุงให้คลิกเลือกสถานะรวมถึงยกเลิกได้) -->
         <div class="flex flex-wrap items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
             <span class="text-base">📌</span>
             <span class="font-semibold mr-2">สรุปสถานะวันที่เลือก :</span>
@@ -77,7 +71,7 @@
 
         <!-- Queue Table Card -->
         <div class="bg-white rounded-2xl shadow-sm border border-[#D8E6DD] overflow-hidden flex-1 flex flex-col">
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto flex-1">
                 <table id="queueTable" class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
@@ -96,15 +90,11 @@
                 </table>
             </div>
 
-            <!-- Pagination (รองรับหน้าถัดไป/ย้อนกลับ เมื่อเกิน 10 รายการ) -->
+            <!-- Pagination (รองรับเปลี่ยนหน้าและย้อนกลับ) -->
             <div class="p-4 border-t border-[#D8E6DD] flex items-center justify-between text-xs text-gray-500 bg-[#FAFCFA]">
                 <span id="recordCount">แสดงข้อมูลทั้งหมดในระบบ</span>
-                <div class="flex items-center space-x-2" id="paginationContainer">
-                    <!-- ปุ่มหน้าก่อนหน้า -->
-                    <button onclick="changePage(currentPage - 1)" id="prevPageBtn" class="px-3 py-1.5 bg-white border border-[#D8E6DD] rounded-lg font-medium text-[#2D6A4F] hover:bg-[#E2EBE5] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">« ย้อนกลับ</button>
-                    <span id="pageIndicator" class="px-3 py-1 font-medium text-[#1B4332]">หน้า 1 / 1</span>
-                    <!-- ปุ่มหน้าถัดไป -->
-                    <button onclick="changePage(currentPage + 1)" id="nextPageBtn" class="px-3 py-1.5 bg-white border border-[#D8E6DD] rounded-lg font-medium text-[#2D6A4F] hover:bg-[#E2EBE5] transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">ถัดไป »</button>
+                <div id="paginationContainer" class="flex space-x-1">
+                    <!-- ปุ่มเปลี่ยนหน้าจะถูกสร้างผ่าน JavaScript -->
                 </div>
             </div>
         </div>
@@ -175,44 +165,20 @@
         </div>
     </div>
 
-    <!-- Modal รายชื่อคนไข้ทั้งหมด (Patient Directory Popup) -->
-    <div id="patient-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-xl border border-[#D8E6DD] max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3 border-[#D8E6DD]">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl">🐶</span>
-                    <h3 class="font-bold text-lg text-[#1B4332]">ทะเบียนรายชื่อคนไข้ทั้งหมด</h3>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="openPatientFormModal(-1)" class="bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-3 py-1.5 rounded-xl text-xs font-medium transition cursor-pointer">
-                        + เพิ่มคนไข้ใหม่
-                    </button>
-                    <button onclick="closePatientModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold cursor-pointer">✕</button>
-                </div>
-            </div>
-            
-            <!-- ตารางแสดงรายชื่อคนไข้ -->
-            <div class="overflow-y-auto flex-1 max-h-[60vh]">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
-                            <th class="py-3 px-3">รูปภาพ</th>
-                            <th class="py-3 px-3">ชื่อสัตว์เลี้ยง / สายพันธุ์</th>
-                            <th class="py-3 px-3">ชื่อเจ้าของ / เบอร์โทร</th>
-                            <th class="py-3 px-3 text-center">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="patientTableBody" class="divide-y divide-[#E9F2EC] text-sm text-[#1E3A2F]">
-                        <!-- เรนเดอร์ด้วย JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-[#52B788] bg-[#E2EBE5]/50 border-t border-[#C8DCD0]">
+        Nitiphan Animal Clinic Management System • GitHub Pages Ready
+    </footer>
 
-    <!-- Modal เพิ่ม/แก้ไข ข้อมูลคนไข้ (Patient Form Modal) -->
-    <div id="patient-form-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4 z-60">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#D8E6DD]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="patientModalTitle" class="font-bold text-lg text-[#1B4332]">เพิ่มข้อมูลคนไข้ใหม่</h3>
-                <button onclick="closePatientFormModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold cursor-pointer">✕</button>
+    <!-- JavaScript สำหรับระบบจัดการคิว, วันที่, ค้นหา, แก้ไข, ลบ, และแบ่งหน้า Pagination -->
+    <script>
+        // ข้อมูลตัวอย่างเริ่มต้น (จำลองข้อมูลให้เกิน 10 รายการเพื่อทดสอบแบ่งหน้า)
+        let appointments = [
+            { date: "2026-10-15", time: "10:00-11:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
+            { date: "2026-10-15", time: "11:00-12:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
+            { date: "2026-10-15", time: "13:00-14:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "14:00-15:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "15:00-15:30", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "15:30-16:00", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "16:00-16:30", pet: "น้องข้าวเจ้า (ชิวาวา)", owner: "คุณโต้ง (086-444-5566)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "16:30-17:00", pet: "น้องเฉาก๊วย (บริติช)", owner: "คุณบ
