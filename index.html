@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <!-- Status Summary Bar (ปรับปรุงให้คลิกเลือกสถานะเพื่อกรองได้) -->
+        <!-- Status Summary Bar (ปรับปรุงให้คลิกเลือกสถานะรวมถึงยกเลิกได้) -->
         <div class="flex flex-wrap items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
             <span class="text-base">📌</span>
             <span class="font-semibold mr-2">สรุปสถานะวันที่เลือก :</span>
@@ -66,7 +66,7 @@
             <span onclick="filterByStatus('รอเข้ารับบริการ')" id="filterPending" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#52B788] font-medium transition">รอดำเนินการ (<span id="countPending">0</span>)</span> | 
             <span onclick="filterByStatus('กำลังตรวจ')" id="filterChecking" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#2D6A4F] font-medium transition">กำลังตรวจ (<span id="countChecking">0</span>)</span> | 
             <span onclick="filterByStatus('เสร็จสิ้น')" id="filterDone" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#1B4332] font-medium transition">เสร็จสิ้น (<span id="countDone">0</span>)</span> | 
-            <span class="text-gray-500 font-medium">ยกเลิก (0)</span>
+            <span onclick="filterByStatus('ยกเลิก')" id="filterCancel" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-gray-500 font-medium transition">ยกเลิก (<span id="countCancel">0</span>)</span>
         </div>
 
         <!-- Queue Table Card -->
@@ -154,6 +154,7 @@
                         <option value="รอเข้ารับบริการ">⏳ รอเข้ารับบริการ</option>
                         <option value="กำลังตรวจ">🟢 กำลังตรวจ</option>
                         <option value="เสร็จสิ้น">✓ เสร็จสิ้น</option>
+                        <option value="ยกเลิก">❌ ยกเลิก</option>
                     </select>
                 </div>
                 <div class="pt-3 flex justify-end gap-2">
@@ -169,7 +170,7 @@
         Nitiphan Animal Clinic Management System • GitHub Pages Ready
     </footer>
 
-    <!-- JavaScript สำหรับระบบจัดการคิว, วันที่, ค้นหา, แก้ไข, ลบ และกรองสถานะ -->
+    <!-- JavaScript สำหรับระบบจัดการคิว, วันที่, ค้นหา, แก้ไข และลบ (เปลี่ยนสถานะเป็นยกเลิก) -->
     <script>
         // ข้อมูลตัวอย่างเริ่มต้น (พร้อมระบุวันที่นัดหมาย)
         let appointments = [
@@ -185,19 +186,21 @@
             currentStatusFilter = status;
             
             // ปรับแต่งสไตล์ปุ่มสถานะที่เลือก
-            ['filterAll', 'filterPending', 'filterChecking', 'filterDone'].forEach(id => {
+            ['filterAll', 'filterPending', 'filterChecking', 'filterDone', 'filterCancel'].forEach(id => {
                 let el = document.getElementById(id);
                 el.className = "cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 font-medium transition text-xs";
                 if(id === 'filterAll') el.classList.add('text-[#1B4332]');
                 if(id === 'filterPending') el.classList.add('text-[#52B788]');
                 if(id === 'filterChecking') el.classList.add('text-[#2D6A4F]');
                 if(id === 'filterDone') el.classList.add('text-[#1B4332]');
+                if(id === 'filterCancel') el.classList.add('text-gray-500');
             });
 
             let activeId = 'filterAll';
             if(status === 'รอเข้ารับบริการ') activeId = 'filterPending';
             if(status === 'กำลังตรวจ') activeId = 'filterChecking';
             if(status === 'เสร็จสิ้น') activeId = 'filterDone';
+            if(status === 'ยกเลิก') activeId = 'filterCancel';
 
             let activeEl = document.getElementById(activeId);
             activeEl.className = "cursor-pointer px-2.5 py-1 rounded-lg bg-[#2D6A4F] text-white font-medium text-xs transition shadow-sm";
@@ -214,16 +217,18 @@
             // กรองข้อมูลเฉพาะของวันที่เลือก
             let dateAppointments = appointments.filter(item => !selectedDate || item.date === selectedDate);
             
-            let countPending = 0, countChecking = 0, countDone = 0;
+            let countPending = 0, countChecking = 0, countDone = 0, countCancel = 0;
             dateAppointments.forEach(item => {
                 if(item.status === "รอเข้ารับบริการ") countPending++;
                 if(item.status === "กำลังตรวจ") countChecking++;
                 if(item.status === "เสร็จสิ้น") countDone++;
+                if(item.status === "ยกเลิก") countCancel++;
             });
 
             document.getElementById('countPending').innerText = countPending;
             document.getElementById('countChecking').innerText = countChecking;
             document.getElementById('countDone').innerText = countDone;
+            document.getElementById('countCancel').innerText = countCancel;
 
             // กรองข้อมูลตามสถานะที่เลือก และคำค้นหา
             let filtered = dateAppointments.filter(item => {
@@ -239,6 +244,7 @@
                 let badgeClass = "bg-[#D8F3DC] text-[#1B4332]";
                 if(item.status === "กำลังตรวจ") badgeClass = "bg-[#52B788] text-white";
                 if(item.status === "เสร็จสิ้น") badgeClass = "bg-[#2D6A4F] text-white";
+                if(item.status === "ยกเลิก") badgeClass = "bg-gray-200 text-gray-600 line-through";
 
                 let row = document.createElement('tr');
                 row.className = "hover:bg-[#F8FAF8] transition";
@@ -248,10 +254,10 @@
                     <td class="py-3.5 px-4 text-gray-600">${item.owner}</td>
                     <td class="py-3.5 px-4 text-gray-600">${item.service}</td>
                     <td class="py-3.5 px-4 text-gray-600">${item.doctor}</td>
-                    <td class="py-3.5 px-4"><span class="${badgeClass} px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">${item.status === 'เสร็จสิ้น' ? '✓' : item.status === 'กำลังตรวจ' ? '🟢' : '⏳'} ${item.status}</span></td>
+                    <td class="py-3.5 px-4"><span class="${badgeClass} px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">${item.status === 'เสร็จสิ้น' ? '✓' : item.status === 'กำลังตรวจ' ? '🟢' : item.status === 'ยกเลิก' ? '❌' : '⏳'} ${item.status}</span></td>
                     <td class="py-3.5 px-4 text-center space-x-1">
                         <button onclick="openEditModal(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="แก้ไขข้อมูล">✏️</button>
-                        <button onclick="deleteAppointment(${realIndex})" class="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition cursor-pointer" title="ลบรายการ">🗑️</button>
+                        <button onclick="deleteAppointment(${realIndex})" class="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition cursor-pointer" title="ยกเลิกรายการ">🗑️</button>
                         <button class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="ส่งต่อ">➡️</button>
                     </td>
                 `;
@@ -337,8 +343,8 @@
         }
 
         function deleteAppointment(index) {
-            if(confirm('คุณต้องการลบรายการนัดหมายนี้ใช่หรือไม่?')) {
-                appointments.splice(index, 1);
+            if(confirm('คุณต้องการเปลี่ยนสถานะรายการนี้เป็น "ยกเลิก" ใช่หรือไม่?')) {
+                appointments[index].status = "ยกเลิก";
                 renderTable();
             }
         }
