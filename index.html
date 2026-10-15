@@ -271,6 +271,35 @@
         </div>
     </div>
 
+    <!-- Modal แสดงประวัติการรักษา -->
+    <div id="history-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[#D8E6DD] flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-[#D8E6DD] pb-3">
+                <div class="flex items-center space-x-3">
+                    <img id="historyPetImg" src="" alt="Pet" class="w-12 h-12 rounded-full object-cover border border-[#C8DCD0]">
+                    <div>
+                        <h3 id="historyPetName" class="font-bold text-base text-[#1B4332]">-</h3>
+                        <p id="historyOwnerInfo" class="text-xs text-gray-500">-</p>
+                    </div>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold cursor-pointer">✕</button>
+            </div>
+            
+            <div class="mb-2">
+                <h4 class="text-xs font-bold text-[#2D6A4F] uppercase tracking-wider mb-2">📋 ประวัติการเข้ารับการรักษา</h4>
+            </div>
+
+            <!-- รายการประวัติ -->
+            <div id="historyListContainer" class="overflow-y-auto space-y-3 flex-1 pr-1">
+                <!-- เรนเดอร์ด้วย JS -->
+            </div>
+
+            <div class="pt-4 mt-3 border-t border-[#D8E6DD] flex justify-end">
+                <button onclick="closeHistoryModal()" class="px-5 py-2 bg-[#2D6A4F] text-white rounded-xl hover:bg-[#1B4332] shadow-sm cursor-pointer text-sm font-medium">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="text-center py-4 text-xs text-[#52B788] bg-[#E2EBE5]/50 border-t border-[#C8DCD0]">
         Nitiphan Animal Clinic Management System • GitHub Pages Ready
@@ -288,14 +317,89 @@
             { date: "2026-10-15", time: "11:00-11:30", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" }
         ];
 
-        // ฐานข้อมูลรายชื่อคนไข้ (เวชระเบียน พร้อมรูปภาพ)
+        // ฐานข้อมูลรายชื่อคนไข้ พร้อมประวัติการรักษา (history)
         let patients = [
-            { img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop", name: "น้องหมีพู", breed: "ชิทู", owner: "คุณสมชาย (081-234-5678)", age: "3 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "5.2 กก." },
-            { img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop", name: "น้องทองกวาว", breed: "เปอร์เซีย", owner: "คุณหญิง (089-999-8888)", age: "2 ปี", gender: "เมีย", weight: "3.8 กก." },
-            { img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=100&h=100&fit=crop", name: "น้องเฉาก๊วย", breed: "แมวไทย", owner: "คุณมาศ (085-555-4444)", age: "5 ปี", gender: "ผู้", weight: "4.5 กก." },
-            { img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop", name: "น้องลัคกี้", breed: "โกลเด้น รีทรีฟเวอร์", owner: "คุณปู (083-111-2233)", age: "4 ปี", gender: "ผู้", weight: "28.0 กก." },
-            { img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=100&h=100&fit=crop", name: "น้องถุงเงิน", breed: "เฟรนช์บูลด็อก", owner: "คุณกอล์ฟ (082-333-4455)", age: "1 ปี 6 เดือน", gender: "เมีย", weight: "9.1 กก." },
-            { img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=100&h=100&fit=crop", name: "น้องมาร์ลี่", breed: "ไซบีเรียน ฮัสกี้", owner: "คุณแนน (081-888-9911)", age: "2 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "21.5 กก." }
+            { 
+                img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop", 
+                name: "น้องหมีพู", 
+                breed: "ชิทู", 
+                owner: "คุณสมชาย", 
+                phone: "081-234-5678",
+                age: "3 ปี", 
+                gender: "ผู้ (ทำหมันแล้ว)", 
+                weight: "5.2 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", note: "สุขภาพแข็งแรงดี น้ำหนักตามเกณฑ์" },
+                    { date: "10 พ.ค. 2026", service: "💉 ฉีดวัคซีนรวมประจำปี", doctor: "สพ.ญ.วิไล", note: "ได้รับวัคซีนพิษสุนัขบ้าและรวม 5 โรคเรียบร้อย" },
+                    { date: "20 ม.ค. 2026", service: "💊 รักษาอาการท้องเสีย", doctor: "นพ.สพ.สมชาย", note: "ให้ยาปฏิชีวนะและเกลือแร่ อาการดีขึ้นใน 2 วัน" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop", 
+                name: "น้องทองกวาว", 
+                breed: "เปอร์เซีย", 
+                owner: "คุณหญิง", 
+                phone: "089-999-8888",
+                age: "2 ปี", 
+                gender: "เมีย", 
+                weight: "3.8 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", note: "ตรวจสุขภาพเบื้องต้นปกติก่อนฉีดวัคซีน" },
+                    { date: "12 ก.พ. 2026", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", note: "ตัดขนทรงสิงโต อาบน้ำกำจัดเห็บหมัด" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=100&h=100&fit=crop", 
+                name: "น้องเฉาก๊วย", 
+                breed: "แมวไทย", 
+                owner: "คุณมาศ", 
+                phone: "085-555-4444",
+                age: "5 ปี", 
+                gender: "ผู้", 
+                weight: "4.5 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัดกับแมวอื่น ทำความสะอาดและฉีดยาแก้อักเสบ" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop", 
+                name: "น้องลัคกี้", 
+                breed: "โกลเด้น รีทรีฟเวอร์", 
+                owner: "คุณปู", 
+                phone: "083-111-2233",
+                age: "4 ปี", 
+                gender: "ผู้", 
+                weight: "28.0 กก.",
+                history: [
+                    { date: "01 ก.ย. 2026", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", note: "เป่าขนแห้งสนิท ตรวจช่องหูสะอาดดี" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=100&h=100&fit=crop", 
+                name: "น้องถุงเงิน", 
+                breed: "เฟรนช์บูลด็อก", 
+                owner: "คุณกอล์ฟ", 
+                phone: "082-333-4455",
+                age: "1 ปี 6 เดือน", 
+                gender: "เมีย", 
+                weight: "9.1 กก.",
+                history: [
+                    { date: "15 ส.ค. 2026", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "สพ.ญ.วิไล", note: "ผิวหนังปกติ ระบบหายใจปกติ" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=100&h=100&fit=crop", 
+                name: "น้องมาร์ลี่", 
+                breed: "ไซบีเรียน ฮัสกี้", 
+                owner: "คุณแนน", 
+                phone: "081-888-9911",
+                age: "2 ปี", 
+                gender: "ผู้ (ทำหมันแล้ว)", 
+                weight: "21.5 กก.",
+                history: [
+                    { date: "10 ก.ค. 2026", service: "💉 ฉีดวัคซีนพิษสุนัขบ้า", doctor: "นพ.สพ.สมชาย", note: "ไม่มีอาการแพ้หลังฉีดวัคซีน" }
+                ]
+            }
         ];
 
         let currentStatusFilter = 'ทั้งหมด';
@@ -336,7 +440,8 @@
             let filtered = patients.filter(p => 
                 p.name.toLowerCase().includes(search) || 
                 p.breed.toLowerCase().includes(search) || 
-                p.owner.toLowerCase().includes(search)
+                p.owner.toLowerCase().includes(search) ||
+                p.phone.includes(search)
             );
 
             if(filtered.length === 0) {
@@ -352,16 +457,54 @@
                     <td class="py-3.5 px-4"><img src="${p.img}" alt="${p.name}" class="w-10 h-10 rounded-full object-cover border border-[#C8DCD0] shadow-xs"></td>
                     <td class="py-3.5 px-4 font-bold text-[#1B4332]">${p.name}</td>
                     <td class="py-3.5 px-4 text-gray-600">${p.breed}</td>
-                    <td class="py-3.5 px-4 text-gray-600">${p.owner}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${p.owner} (${p.phone})</td>
                     <td class="py-3.5 px-4 text-gray-600">${p.age}</td>
                     <td class="py-3.5 px-4 text-gray-600">${p.gender}</td>
                     <td class="py-3.5 px-4 font-semibold text-[#2D6A4F]">${p.weight}</td>
-                    <td class="py-3.5 px-4 text-center">
+                    <td class="py-3.5 px-4 text-center space-x-1">
+                        <button onclick="openHistoryModal(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-emerald-700 transition cursor-pointer" title="ประวัติการรักษา">📋</button>
                         <button onclick="openEditPatientModal(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="แก้ไขข้อมูลคนไข้">✏️</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // ฟังก์ชันเปิด Modal ประวัติการรักษา
+        function openHistoryModal(index) {
+            let p = patients[index];
+            document.getElementById('historyPetImg').src = p.img;
+            document.getElementById('historyPetName').innerText = `${p.name} (${p.breed})`;
+            document.getElementById('historyOwnerInfo').innerText = `เจ้าของ: ${p.owner} | เบอร์โทร: ${p.phone}`;
+
+            let container = document.getElementById('historyListContainer');
+            container.innerHTML = '';
+
+            if(!p.history || p.history.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">ยังไม่มีประวัติการรักษาในระบบ</div>`;
+            } else {
+                p.history.forEach((h, i) => {
+                    let div = document.createElement('div');
+                    div.className = "bg-[#F8FAF8] p-3 rounded-xl border border-[#D8E6DD] text-xs space-y-1";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center font-bold text-[#1B4332]">
+                            <span>${h.service}</span>
+                            <span class="text-gray-500 font-normal">📅 ${h.date}</span>
+                        </div>
+                        <div class="text-gray-600">🩺 แพทย์ผู้ตรวจ: <span class="font-medium text-[#2D6A4F]">${h.doctor}</span></div>
+                        <div class="text-gray-500 bg-white p-2 rounded-lg border border-[#E9F2EC] mt-1">📝 บันทึกการรักษา: ${h.note || '-'}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            document.getElementById('history-modal').classList.remove('hidden');
+            document.getElementById('history-modal').classList.add('flex');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.remove('flex');
+            document.getElementById('history-modal').classList.add('hidden');
         }
 
         function openPatientModal() {
@@ -384,7 +527,7 @@
             document.getElementById('editPatientIndex').value = index;
             document.getElementById('inputPatientName').value = p.name;
             document.getElementById('inputPatientBreed').value = p.breed;
-            document.getElementById('inputPatientOwner').value = p.owner;
+            document.getElementById('inputPatientOwner').value = `${p.owner} (${p.phone})`;
             document.getElementById('inputPatientAge').value = p.age;
             document.getElementById('inputPatientGender').value = p.gender;
             document.getElementById('inputPatientWeight').value = p.weight;
@@ -402,23 +545,38 @@
             let editIndex = parseInt(document.getElementById('editPatientIndex').value);
             let name = document.getElementById('inputPatientName').value.trim();
             let breed = document.getElementById('inputPatientBreed').value.trim();
-            let owner = document.getElementById('inputPatientOwner').value.trim();
+            let ownerFull = document.getElementById('inputPatientOwner').value.trim();
             let age = document.getElementById('inputPatientAge').value.trim();
             let gender = document.getElementById('inputPatientGender').value;
             let weight = document.getElementById('inputPatientWeight').value.trim();
             let img = document.getElementById('inputPatientImg').value.trim() || "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop";
 
-            if(!name || !owner) {
+            if(!name || !ownerFull) {
                 alert('กรุณากรอกชื่อสัตว์เลี้ยงและชื่อเจ้าของให้ครบถ้วน');
                 return;
             }
 
-            let newPatient = { img, name, breed, owner, age, gender, weight };
+            // แยกชื่อเจ้าของกับเบอร์โทรอย่างง่าย
+            let ownerName = ownerFull;
+            let phoneNum = "-";
+            if(ownerFull.includes('(')) {
+                let parts = ownerFull.split('(');
+                ownerName = parts[0].trim();
+                phoneNum = parts[1].replace(')', '').trim();
+            }
 
             if(editIndex === -1) {
+                let newPatient = { img, name, breed, owner: ownerName, phone: phoneNum, age, gender, weight, history: [] };
                 patients.unshift(newPatient);
             } else {
-                patients[editIndex] = newPatient;
+                patients[editIndex].img = img;
+                patients[editIndex].name = name;
+                patients[editIndex].breed = breed;
+                patients[editIndex].owner = ownerName;
+                patients[editIndex].phone = phoneNum;
+                patients[editIndex].age = age;
+                patients[editIndex].gender = gender;
+                patients[editIndex].weight = weight;
             }
 
             closePatientModal();
@@ -551,92 +709,4 @@
             document.getElementById('inputTimeStart').value = "10:00";
             document.getElementById('inputTimeEnd').value = "11:00";
             document.getElementById('inputStatus').value = "รอเข้ารับบริการ";
-            document.getElementById('appointment-modal').classList.remove('hidden');
-            document.getElementById('appointment-modal').classList.add('flex');
-        }
-
-        function openEditModal(index) {
-            let item = appointments[index];
-            document.getElementById('modalTitle').innerText = "แก้ไขข้อมูลนัดหมาย";
-            document.getElementById('editIndex').value = index;
-            document.getElementById('inputPet').value = item.pet;
-            document.getElementById('inputOwner').value = item.owner;
-            document.getElementById('inputDate').value = item.date || "2026-10-15";
-            
-            let times = item.time.split('-');
-            if(times.length === 2) {
-                document.getElementById('inputTimeStart').value = times[0].trim();
-                document.getElementById('inputTimeEnd').value = times[1].trim();
-            }
-
-            document.getElementById('inputService').value = item.service;
-            document.getElementById('inputDoctor').value = item.doctor;
-            document.getElementById('inputStatus').value = item.status;
-
-            document.getElementById('appointment-modal').classList.remove('hidden');
-            document.getElementById('appointment-modal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('appointment-modal').classList.remove('flex');
-            document.getElementById('appointment-modal').classList.add('hidden');
-        }
-
-        function saveAppointment() {
-            let editIndex = parseInt(document.getElementById('editIndex').value);
-            let pet = document.getElementById('inputPet').value.trim();
-            let owner = document.getElementById('inputOwner').value.trim();
-            let date = document.getElementById('inputDate').value;
-            let timeStart = document.getElementById('inputTimeStart').value;
-            let timeEnd = document.getElementById('inputTimeEnd').value;
-            let service = document.getElementById('inputService').value;
-            let doctor = document.getElementById('inputDoctor').value;
-            let status = document.getElementById('inputStatus').value;
-
-            if(!pet || !owner || !date) {
-                alert('กรุณากรอกวันที่ ชื่อสัตว์เลี้ยง และชื่อเจ้าของให้ครบถ้วน');
-                return;
-            }
-
-            let newItem = {
-                date: date,
-                time: `${timeStart}-${timeEnd}`,
-                pet: pet,
-                owner: owner,
-                service: service,
-                doctor: doctor,
-                status: status
-            };
-
-            if(editIndex === -1) {
-                appointments.unshift(newItem);
-                currentPage = 1;
-            } else {
-                appointments[editIndex] = newItem;
-            }
-
-            document.getElementById('filterDate').value = date;
-            closeModal();
-            renderTable();
-        }
-
-        function deleteAppointment(index) {
-            if(confirm('คุณต้องการเปลี่ยนสถานะรายการนี้เป็น "ยกเลิก" ใช่หรือไม่?')) {
-                appointments[index].status = "ยกเลิก";
-                renderTable();
-            }
-        }
-
-        function refreshData() {
-            document.getElementById('searchInput').value = '';
-            currentStatusFilter = 'ทั้งหมด';
-            currentPage = 1;
-            filterByStatus('ทั้งหมด');
-            alert('รีเฟรชข้อมูลคิวล่าสุดเรียบร้อยแล้ว');
-        }
-
-        // โหลดตารางครั้งแรก
-        renderTable();
-    </script>
-</body>
-</html>
+            document.getElementById('appointment-modal
