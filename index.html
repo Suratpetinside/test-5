@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="flex items-center space-x-4 text-sm">
-            <!-- ช่องเลือกวันที่หลักของระบบ -->
+            <!-- ช่องเลือกวันที่หลักของระบบ (เปลี่ยนเพื่อดูคิวตามวัน) -->
             <div class="bg-white/90 border border-[#C8DCD0] px-4 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
                 <span>📅</span> 
                 <span>เลือกวันที่:</span>
@@ -58,14 +58,15 @@
             </div>
         </div>
 
-        <!-- Status Summary Bar (สามารถคลิกเพื่อกรองสถานะได้) -->
+        <!-- Status Summary Bar (ปรับปรุงให้คลิกเลือกสถานะเพื่อกรองได้) -->
         <div class="flex flex-wrap items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
             <span class="text-base">📌</span>
             <span class="font-semibold mr-2">สรุปสถานะวันที่เลือก :</span>
             <span onclick="filterByStatus('ทั้งหมด')" id="filterAll" class="cursor-pointer px-2.5 py-1 rounded-lg bg-[#2D6A4F] text-white font-medium text-xs transition">ทั้งหมด</span> | 
             <span onclick="filterByStatus('รอเข้ารับบริการ')" id="filterPending" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#52B788] font-medium transition">รอดำเนินการ (<span id="countPending">0</span>)</span> | 
             <span onclick="filterByStatus('กำลังตรวจ')" id="filterChecking" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#2D6A4F] font-medium transition">กำลังตรวจ (<span id="countChecking">0</span>)</span> | 
-            <span onclick="filterByStatus('เสร็จสิ้น')" id="filterDone" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#1B4332] font-medium transition">เสร็จสิ้น (<span id="countDone">0</span>)</span>
+            <span onclick="filterByStatus('เสร็จสิ้น')" id="filterDone" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#1B4332] font-medium transition">เสร็จสิ้น (<span id="countDone">0</span>)</span> | 
+            <span class="text-gray-500 font-medium">ยกเลิก (0)</span>
         </div>
 
         <!-- Queue Table Card -->
@@ -170,7 +171,7 @@
 
     <!-- JavaScript สำหรับระบบจัดการคิว, วันที่, ค้นหา, แก้ไข, ลบ และกรองสถานะ -->
     <script>
-        // ข้อมูลตัวอย่างเริ่มต้น
+        // ข้อมูลตัวอย่างเริ่มต้น (พร้อมระบุวันที่นัดหมาย)
         let appointments = [
             { date: "2026-10-15", time: "10:00-12:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
             { date: "2026-10-15", time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
@@ -183,7 +184,7 @@
         function filterByStatus(status) {
             currentStatusFilter = status;
             
-            // ปรับแต่งสไตล์ปุ่มที่เลือก
+            // ปรับแต่งสไตล์ปุ่มสถานะที่เลือก
             ['filterAll', 'filterPending', 'filterChecking', 'filterDone'].forEach(id => {
                 let el = document.getElementById(id);
                 el.className = "cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 font-medium transition text-xs";
@@ -210,10 +211,10 @@
             const selectedDate = document.getElementById('filterDate').value;
             tableBody.innerHTML = '';
 
-            // นับจำนวนสถานะเฉพาะของวันที่เลือก
+            // กรองข้อมูลเฉพาะของวันที่เลือก
             let dateAppointments = appointments.filter(item => !selectedDate || item.date === selectedDate);
+            
             let countPending = 0, countChecking = 0, countDone = 0;
-
             dateAppointments.forEach(item => {
                 if(item.status === "รอเข้ารับบริการ") countPending++;
                 if(item.status === "กำลังตรวจ") countChecking++;
@@ -224,14 +225,14 @@
             document.getElementById('countChecking').innerText = countChecking;
             document.getElementById('countDone').innerText = countDone;
 
-            // กรองข้อมูลตาม วันที่, สถานะที่คลิก, และคำค้นหา
+            // กรองข้อมูลตามสถานะที่เลือก และคำค้นหา
             let filtered = dateAppointments.filter(item => {
                 let matchStatus = currentStatusFilter === 'ทั้งหมด' || item.status === currentStatusFilter;
                 let matchSearch = item.pet.toLowerCase().includes(searchInput) || item.owner.toLowerCase().includes(searchInput);
                 return matchStatus && matchSearch;
             });
 
-            document.getElementById('recordCount').innerText = `แสดง ${filtered.length} จากทั้งหมด ${dateAppointments.length} รายการ (วันที่เลือก)`;
+            document.getElementById('recordCount').innerText = `แสดง ${filtered.length} จากทั้งหมด ${dateAppointments.length} รายการ`;
 
             filtered.forEach((item) => {
                 let realIndex = appointments.indexOf(item);
@@ -265,4 +266,92 @@
             document.getElementById('inputOwner').value = "";
             document.getElementById('inputDate').value = document.getElementById('filterDate').value;
             document.getElementById('inputTimeStart').value = "10:00";
-            document.getElementById('input
+            document.getElementById('inputTimeEnd').value = "11:00";
+            document.getElementById('inputStatus').value = "รอเข้ารับบริการ";
+            document.getElementById('appointment-modal').classList.remove('hidden');
+            document.getElementById('appointment-modal').classList.add('flex');
+        }
+
+        function openEditModal(index) {
+            let item = appointments[index];
+            document.getElementById('modalTitle').innerText = "แก้ไขข้อมูลนัดหมาย";
+            document.getElementById('editIndex').value = index;
+            document.getElementById('inputPet').value = item.pet;
+            document.getElementById('inputOwner').value = item.owner;
+            document.getElementById('inputDate').value = item.date || "2026-10-15";
+            
+            let times = item.time.split('-');
+            if(times.length === 2) {
+                document.getElementById('inputTimeStart').value = times[0].trim();
+                document.getElementById('inputTimeEnd').value = times[1].trim();
+            }
+
+            document.getElementById('inputService').value = item.service;
+            document.getElementById('inputDoctor').value = item.doctor;
+            document.getElementById('inputStatus').value = item.status;
+
+            document.getElementById('appointment-modal').classList.remove('hidden');
+            document.getElementById('appointment-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('appointment-modal').classList.remove('flex');
+            document.getElementById('appointment-modal').classList.add('hidden');
+        }
+
+        function saveAppointment() {
+            let editIndex = parseInt(document.getElementById('editIndex').value);
+            let pet = document.getElementById('inputPet').value.trim();
+            let owner = document.getElementById('inputOwner').value.trim();
+            let date = document.getElementById('inputDate').value;
+            let timeStart = document.getElementById('inputTimeStart').value;
+            let timeEnd = document.getElementById('inputTimeEnd').value;
+            let service = document.getElementById('inputService').value;
+            let doctor = document.getElementById('inputDoctor').value;
+            let status = document.getElementById('inputStatus').value;
+
+            if(!pet || !owner || !date) {
+                alert('กรุณากรอกวันที่ ชื่อสัตว์เลี้ยง และชื่อเจ้าของให้ครบถ้วน');
+                return;
+            }
+
+            let newItem = {
+                date: date,
+                time: `${timeStart}-${timeEnd}`,
+                pet: pet,
+                owner: owner,
+                service: service,
+                doctor: doctor,
+                status: status
+            };
+
+            if(editIndex === -1) {
+                appointments.unshift(newItem);
+            } else {
+                appointments[editIndex] = newItem;
+            }
+
+            document.getElementById('filterDate').value = date;
+            closeModal();
+            renderTable();
+        }
+
+        function deleteAppointment(index) {
+            if(confirm('คุณต้องการลบรายการนัดหมายนี้ใช่หรือไม่?')) {
+                appointments.splice(index, 1);
+                renderTable();
+            }
+        }
+
+        function refreshData() {
+            document.getElementById('searchInput').value = '';
+            currentStatusFilter = 'ทั้งหมด';
+            filterByStatus('ทั้งหมด');
+            alert('รีเฟรชข้อมูลคิวล่าสุดเรียบร้อยแล้ว');
+        }
+
+        // โหลดตารางครั้งแรกเมื่อเปิดหน้าเว็บ
+        renderTable();
+    </script>
+</body>
+</html>
