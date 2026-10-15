@@ -26,8 +26,18 @@
             </div>
         </div>
         <div class="flex items-center space-x-4 text-sm">
-            <!-- ช่องเลือกวันที่หลักของระบบ (เปลี่ยนเพื่อดูคิวตามวัน) -->
-            <div class="bg-white/90 border border-[#C8DCD0] px-4 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
+            <!-- ปุ่มสลับหน้าเว็บ (คิว / คนไข้) -->
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('queue')" id="btnQueueTab" class="px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs">
+                    📅 จัดการคิว
+                </button>
+                <button onclick="switchTab('patients')" id="btnPatientTab" class="px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]">
+                    🐶 รายชื่อคนไข้
+                </button>
+            </div>
+
+            <!-- ช่องเลือกวันที่หลักของระบบ (แสดงเฉพาะหน้าคิว) -->
+            <div id="dateFilterWrapper" class="bg-white/90 border border-[#C8DCD0] px-4 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
                 <span>📅</span> 
                 <span>เลือกวันที่:</span>
                 <input type="date" id="filterDate" value="2026-10-15" onchange="currentPage=1; renderTable()" class="bg-transparent text-[#1B4332] font-bold focus:outline-none cursor-pointer">
@@ -41,63 +51,101 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
         
-        <!-- Top Toolbar: Search & Action -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#D8E6DD]">
-            <div class="relative w-full md:w-96">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
-                <!-- ช่องค้นหาอัจฉริยะ -->
-                <input type="text" id="searchInput" onkeyup="currentPage=1; renderTable()" placeholder="ค้นหาชื่อสัตว์เลี้ยง / เจ้าของ / เบอร์โทร" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
-            </div>
-            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-                <button onclick="openAddModal()" class="bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-2 cursor-pointer">
-                    <span class="text-lg leading-none">+</span> เพิ่มนัดหมายใหม่
-                </button>
-                <button onclick="refreshData()" class="p-2.5 bg-[#F0F5F1] hover:bg-[#E2EBE5] border border-[#D8E6DD] rounded-xl text-[#2D6A4F] transition cursor-pointer" title="รีเฟรชข้อมูล">
-                    🔄
-                </button>
-            </div>
-        </div>
-
-        <!-- Status Summary Bar -->
-        <div class="flex flex-wrap items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
-            <span class="text-base">📌</span>
-            <span class="font-semibold mr-2">สรุปสถานะวันที่เลือก :</span>
-            <span onclick="filterByStatus('ทั้งหมด')" id="filterAll" class="cursor-pointer px-2.5 py-1 rounded-lg bg-[#2D6A4F] text-white font-medium text-xs transition">ทั้งหมด</span> | 
-            <span onclick="filterByStatus('รอเข้ารับบริการ')" id="filterPending" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#52B788] font-medium transition">รอดำเนินการ (<span id="countPending">0</span>)</span> | 
-            <span onclick="filterByStatus('กำลังตรวจ')" id="filterChecking" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#2D6A4F] font-medium transition">กำลังตรวจ (<span id="countChecking">0</span>)</span> | 
-            <span onclick="filterByStatus('เสร็จสิ้น')" id="filterDone" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#1B4332] font-medium transition">เสร็จสิ้น (<span id="countDone">0</span>)</span> | 
-            <span onclick="filterByStatus('ยกเลิก')" id="filterCancel" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-gray-500 font-medium transition">ยกเลิก (<span id="countCancel">0</span>)</span>
-        </div>
-
-        <!-- Queue Table Card -->
-        <div class="bg-white rounded-2xl shadow-sm border border-[#D8E6DD] overflow-hidden flex-1 flex flex-col">
-            <div class="overflow-x-auto flex-1">
-                <table id="queueTable" class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
-                            <th class="py-3.5 px-4 font-semibold">🕒 เวลา</th>
-                            <th class="py-3.5 px-4 font-semibold">🐾 ชื่อสัตว์เลี้ยง/สายพันธุ์</th>
-                            <th class="py-3.5 px-4 font-semibold">👤 ชื่อเจ้าของ / เบอร์โทร</th>
-                            <th class="py-3.5 px-4 font-semibold">📋 ประเภทบริการ</th>
-                            <th class="py-3.5 px-4 font-semibold">🩺 สัตวแพทย์ผู้ตรวจ</th>
-                            <th class="py-3.5 px-4 font-semibold">📊 สถานะคิว</th>
-                            <th class="py-3.5 px-4 font-semibold text-center">⚙️ การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-[#E9F2EC] text-sm text-[#1E3A2F]">
-                        <!-- ข้อมูลจะถูกเรนเดอร์ผ่าน JavaScript อัตโนมัติ -->
-                    </tbody>
-                </table>
+        <!-- ================= SECTION 1: หน้าจัดการคิว ================= -->
+        <div id="sectionQueue" class="flex flex-col gap-6 flex-1">
+            <!-- Top Toolbar: Search & Action -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#D8E6DD]">
+                <div class="relative w-full md:w-96">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
+                    <!-- ช่องค้นหาอัจฉริยะ -->
+                    <input type="text" id="searchInput" onkeyup="currentPage=1; renderTable()" placeholder="ค้นหาชื่อสัตว์เลี้ยง / เจ้าของ / เบอร์โทร" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button onclick="openAddModal()" class="bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-2 cursor-pointer">
+                        <span class="text-lg leading-none">+</span> เพิ่มนัดหมายใหม่
+                    </button>
+                    <button onclick="refreshData()" class="p-2.5 bg-[#F0F5F1] hover:bg-[#E2EBE5] border border-[#D8E6DD] rounded-xl text-[#2D6A4F] transition cursor-pointer" title="รีเฟรชข้อมูล">
+                        🔄
+                    </button>
+                </div>
             </div>
 
-            <!-- Pagination -->
-            <div class="p-4 border-t border-[#D8E6DD] flex items-center justify-between text-xs text-gray-500 bg-[#FAFCFA]">
-                <span id="recordCount">แสดงข้อมูลทั้งหมดในระบบ</span>
-                <div id="paginationContainer" class="flex space-x-1">
-                    <!-- ปุ่มเปลี่ยนหน้าเรนเดอร์ผ่าน JS -->
+            <!-- Status Summary Bar -->
+            <div class="flex flex-wrap items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
+                <span class="text-base">📌</span>
+                <span class="font-semibold mr-2">สรุปสถานะวันที่เลือก :</span>
+                <span onclick="filterByStatus('ทั้งหมด')" id="filterAll" class="cursor-pointer px-2.5 py-1 rounded-lg bg-[#2D6A4F] text-white font-medium text-xs transition">ทั้งหมด</span> | 
+                <span onclick="filterByStatus('รอเข้ารับบริการ')" id="filterPending" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#52B788] font-medium transition">รอดำเนินการ (<span id="countPending">0</span>)</span> | 
+                <span onclick="filterByStatus('กำลังตรวจ')" id="filterChecking" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#2D6A4F] font-medium transition">กำลังตรวจ (<span id="countChecking">0</span>)</span> | 
+                <span onclick="filterByStatus('เสร็จสิ้น')" id="filterDone" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-[#1B4332] font-medium transition">เสร็จสิ้น (<span id="countDone">0</span>)</span> | 
+                <span onclick="filterByStatus('ยกเลิก')" id="filterCancel" class="cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 text-gray-500 font-medium transition">ยกเลิก (<span id="countCancel">0</span>)</span>
+            </div>
+
+            <!-- Queue Table Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-[#D8E6DD] overflow-hidden flex-1 flex flex-col">
+                <div class="overflow-x-auto flex-1">
+                    <table id="queueTable" class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
+                                <th class="py-3.5 px-4 font-semibold">🕒 เวลา</th>
+                                <th class="py-3.5 px-4 font-semibold">🐾 ชื่อสัตว์เลี้ยง/สายพันธุ์</th>
+                                <th class="py-3.5 px-4 font-semibold">👤 ชื่อเจ้าของ / เบอร์โทร</th>
+                                <th class="py-3.5 px-4 font-semibold">📋 ประเภทบริการ</th>
+                                <th class="py-3.5 px-4 font-semibold">🩺 สัตวแพทย์ผู้ตรวจ</th>
+                                <th class="py-3.5 px-4 font-semibold">📊 สถานะคิว</th>
+                                <th class="py-3.5 px-4 font-semibold text-center">⚙️ การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-[#E9F2EC] text-sm text-[#1E3A2F]">
+                            <!-- ข้อมูลเรนเดอร์ผ่าน JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="p-4 border-t border-[#D8E6DD] flex items-center justify-between text-xs text-gray-500 bg-[#FAFCFA]">
+                    <span id="recordCount">แสดงข้อมูลทั้งหมดในระบบ</span>
+                    <div id="paginationContainer" class="flex space-x-1"></div>
                 </div>
             </div>
         </div>
+
+        <!-- ================= SECTION 2: หน้าข้อมูลรายชื่อคนไข้ ================= -->
+        <div id="sectionPatients" class="flex flex-col gap-6 flex-1 hidden">
+            <!-- Toolbar ค้นหาคนไข้ -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#D8E6DD]">
+                <div class="relative w-full md:w-96">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">🔍</span>
+                    <input type="text" id="searchPatientInput" onkeyup="renderPatientTable()" placeholder="ค้นหาชื่อน้อง / เจ้าของ / พันธุ์" class="w-full pl-10 pr-4 py-2.5 bg-[#F8FAF8] border border-[#D8E6DD] rounded-xl text-sm focus:outline-none focus:border-[#2D6A4F] text-[#1B4332]">
+                </div>
+                <div class="text-xs text-[#2D6A4F] font-medium">
+                    🗂️ ฐานข้อมูลเวชระเบียนสัตว์เลี้ยงทั้งหมด
+                </div>
+            </div>
+
+            <!-- Patient Table Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-[#D8E6DD] overflow-hidden flex-1 flex flex-col">
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-[#E9F2EC] text-[#1B4332] text-xs uppercase tracking-wider border-b border-[#D8E6DD]">
+                                <th class="py-3.5 px-4 font-semibold">📷 รูปน้อง</th>
+                                <th class="py-3.5 px-4 font-semibold">🐾 ชื่อสัตว์เลี้ยง</th>
+                                <th class="py-3.5 px-4 font-semibold">📋 พันธุ์</th>
+                                <th class="py-3.5 px-4 font-semibold">👤 ชื่อเจ้าของ / เบอร์โทร</th>
+                                <th class="py-3.5 px-4 font-semibold">🎂 อายุ</th>
+                                <th class="py-3.5 px-4 font-semibold">⚧ เพศ</th>
+                                <th class="py-3.5 px-4 font-semibold">⚖️ น้ำหนัก</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody" class="divide-y divide-[#E9F2EC] text-sm text-[#1E3A2F]">
+                            <!-- ข้อมูลคนไข้เรนเดอร์ผ่าน JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Modal เพิ่ม/แก้ไขนัดหมาย -->
@@ -170,30 +218,93 @@
         Nitiphan Animal Clinic Management System • GitHub Pages Ready
     </footer>
 
-    <!-- JavaScript สำหรับระบบจัดการคิว -->
+    <!-- JavaScript สำหรับระบบจัดการคิวและรายชื่อคนไข้ -->
     <script>
-        // ข้อมูลตัวอย่างเริ่มต้น (เพิ่มให้เกิน 10 รายการเพื่อทดสอบแบ่งหน้า)
+        // ข้อมูลตัวอย่างนัดหมาย
         let appointments = [
             { date: "2026-10-15", time: "10:00-12:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
             { date: "2026-10-15", time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
             { date: "2026-10-15", time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
             { date: "2026-10-17", time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" },
             { date: "2026-10-15", time: "10:30-11:00", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "11:00-11:30", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "11:30-12:00", pet: "น้องข้าวเจ้า (ชิวาวา)", owner: "คุณโต้ง (086-444-5566)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "13:00-13:30", pet: "น้องบริติช (แมว)", owner: "คุณบี (089-123-4567)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "13:30-14:00", pet: "น้องส้มตำ (แมวไทย)", owner: "คุณเจน (084-555-3322)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "14:00-14:30", pet: "น้องปีเตอร์ (แจ็ครัสเซล)", owner: "คุณรบ (081-999-1122)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "14:30-15:00", pet: "น้องบารอน (เยอรมันเชพเพิร์ด)", owner: "คุณธน์ (082-123-9876)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" }
+            { date: "2026-10-15", time: "11:00-11:30", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" }
+        ];
+
+        // ฐานข้อมูลรายชื่อคนไข้ (เวชระเบียน พร้อมรูปภาพ)
+        let patients = [
+            { img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop", name: "น้องหมีพู", breed: "ชิทู", owner: "คุณสมชาย (081-234-5678)", age: "3 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "5.2 กก." },
+            { img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop", name: "น้องทองกวาว", breed: "เปอร์เซีย", owner: "คุณหญิง (089-999-8888)", age: "2 ปี", gender: "เมีย", weight: "3.8 กก." },
+            { img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=100&h=100&fit=crop", name: "น้องเฉาก๊วย", breed: "แมวไทย", owner: "คุณมาศ (085-555-4444)", age: "5 ปี", gender: "ผู้", weight: "4.5 กก." },
+            { img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop", name: "น้องลัคกี้", breed: "โกลเด้น รีทรีฟเวอร์", owner: "คุณปู (083-111-2233)", age: "4 ปี", gender: "ผู้", weight: "28.0 กก." },
+            { img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=100&h=100&fit=crop", name: "น้องถุงเงิน", breed: "เฟรนช์บูลด็อก", owner: "คุณกอล์ฟ (082-333-4455)", age: "1 ปี 6 เดือน", gender: "เมีย", weight: "9.1 กก." },
+            { img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=100&h=100&fit=crop", name: "น้องมาร์ลี่", breed: "ไซบีเรียน ฮัสกี้", owner: "คุณแนน (081-888-9911)", age: "2 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "21.5 กก." }
         ];
 
         let currentStatusFilter = 'ทั้งหมด';
         let currentPage = 1;
         const rowsPerPage = 10;
 
+        // สลับแท็บระหว่าง "จัดการคิว" และ "รายชื่อคนไข้"
+        function switchTab(tab) {
+            const btnQueue = document.getElementById('btnQueueTab');
+            const btnPatient = document.getElementById('btnPatientTab');
+            const secQueue = document.getElementById('sectionQueue');
+            const secPatients = document.getElementById('sectionPatients');
+            const dateWrapper = document.getElementById('dateFilterWrapper');
+
+            if(tab === 'queue') {
+                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
+                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
+                secQueue.classList.remove('hidden');
+                secPatients.classList.add('hidden');
+                dateWrapper.classList.remove('hidden');
+                renderTable();
+            } else {
+                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
+                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
+                secPatients.classList.remove('hidden');
+                secQueue.classList.add('hidden');
+                dateWrapper.classList.add('hidden');
+                renderPatientTable();
+            }
+        }
+
+        // เรนเดอร์ตารางรายชื่อคนไข้
+        function renderPatientTable() {
+            const tbody = document.getElementById('patientTableBody');
+            const search = document.getElementById('searchPatientInput').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            let filtered = patients.filter(p => 
+                p.name.toLowerCase().includes(search) || 
+                p.breed.toLowerCase().includes(search) || 
+                p.owner.toLowerCase().includes(search)
+            );
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-gray-400">ไม่พบข้อมูลรายชื่อคนไข้</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-[#F8FAF8] transition";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4"><img src="${p.img}" alt="${p.name}" class="w-10 h-10 rounded-full object-cover border border-[#C8DCD0] shadow-xs"></td>
+                    <td class="py-3.5 px-4 font-bold text-[#1B4332]">${p.name}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${p.breed}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${p.owner}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${p.age}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${p.gender}</td>
+                    <td class="py-3.5 px-4 font-semibold text-[#2D6A4F]">${p.weight}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         function filterByStatus(status) {
             currentStatusFilter = status;
-            currentPage = 1; // รีเซ็ตหน้าเมื่อเปลี่ยนตัวกรอง
+            currentPage = 1;
             
             ['filterAll', 'filterPending', 'filterChecking', 'filterDone', 'filterCancel'].forEach(id => {
                 let el = document.getElementById(id);
@@ -244,7 +355,6 @@
                 return matchStatus && matchSearch;
             });
 
-            // คำนวณหน้า Pagination
             let totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
@@ -286,7 +396,6 @@
             const container = document.getElementById('paginationContainer');
             container.innerHTML = '';
 
-            // ปุ่มก่อนหน้า
             let prevBtn = document.createElement('button');
             prevBtn.innerHTML = '◄ ก่อนหน้า';
             prevBtn.className = `px-3 py-1 bg-white border border-[#D8E6DD] rounded-lg font-medium text-xs ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'text-[#2D6A4F] hover:bg-[#F0F5F1] cursor-pointer'}`;
@@ -294,7 +403,6 @@
             prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
             container.appendChild(prevBtn);
 
-            // ปุ่มเลขหน้า
             for (let i = 1; i <= totalPages; i++) {
                 let pageBtn = document.createElement('button');
                 pageBtn.innerText = i;
@@ -303,7 +411,6 @@
                 container.appendChild(pageBtn);
             }
 
-            // ปุ่มถัดไป
             let nextBtn = document.createElement('button');
             nextBtn.innerHTML = 'ถัดไป ►';
             nextBtn.className = `px-3 py-1 bg-white border border-[#D8E6DD] rounded-lg font-medium text-xs ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'text-[#2D6A4F] hover:bg-[#F0F5F1] cursor-pointer'}`;
@@ -405,7 +512,7 @@
             alert('รีเฟรชข้อมูลคิวล่าสุดเรียบร้อยแล้ว');
         }
 
-        // โหลดตารางครั้งแรกเมื่อเปิดหน้าเว็บ
+        // โหลดตารางครั้งแรก
         renderTable();
     </script>
 </body>
