@@ -290,7 +290,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: สมุดตรวจรักษาของสัตวแพทย์ (เชื่อมต่อ History คนไข้) ================= -->
+    <!-- ================= MODAL: สมุดตรวจรักษาของสัตวแพทย์ ================= -->
     <div id="doctorNotebookModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-[#D8E6DD] flex flex-col max-h-[90vh]">
             <!-- Header ส่วนหัวของสมุดตรวจ -->
@@ -354,7 +354,7 @@
                     </div>
                 </div>
 
-                <!-- รายการประวัติการรักษาทั้งหมดของน้อง (History) -->
+                <!-- รายการประวัติการรักษาทั้งหมดของน้อง (แสดงย้อนหลัง) -->
                 <div>
                     <h4 class="text-xs font-bold text-[#1B4332] uppercase tracking-wider mb-3">🗂️ ประวัติการรักษาที่บันทึกไว้ทั้งหมดในระบบ</h4>
                     <div id="notebookHistoryList" class="space-y-3">
@@ -384,4 +384,176 @@
             { date: "2026-10-15", time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
             { date: "2026-10-15", time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
             { date: "2026-10-17", time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "10:30-11:00", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล
+            { date: "2026-10-15", time: "10:30-11:00", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-15", time: "11:00-11:30", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" }
+        ];
+
+        // ฐานข้อมูลรายชื่อคนไข้ พร้อมประวัติการรักษา (history)
+        let patients = [
+            { 
+                img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop", 
+                name: "น้องหมีพู", 
+                breed: "ชิทู", 
+                owner: "คุณสมชาย", 
+                phone: "081-234-5678",
+                age: "3 ปี", 
+                gender: "ผู้ (ทำหมันแล้ว)", 
+                weight: "5.2 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", note: "สุขภาพแข็งแรงดี น้ำหนักตามเกณฑ์" },
+                    { date: "10 พ.ค. 2026", service: "💉 ฉีดวัคซีนรวมประจำปี", doctor: "สพ.ญ.วิไล", note: "ได้รับวัคซีนพิษสุนัขบ้าและรวม 5 โรคเรียบร้อย" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop", 
+                name: "น้องทองกวาว", 
+                breed: "เปอร์เซีย", 
+                owner: "คุณหญิง", 
+                phone: "089-999-8888",
+                age: "2 ปี", 
+                gender: "เมีย", 
+                weight: "3.8 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", note: "ตรวจสุขภาพเบื้องต้นปกติก่อนฉีดวัคซีน" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=100&h=100&fit=crop", 
+                name: "น้องเฉาก๊วย", 
+                breed: "แมวไทย", 
+                owner: "คุณมาศ", 
+                phone: "085-555-4444",
+                age: "5 ปี", 
+                gender: "ผู้", 
+                weight: "4.5 กก.",
+                history: [
+                    { date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop", 
+                name: "น้องลัคกี้", 
+                breed: "โกลเด้น รีทรีฟเวอร์", 
+                owner: "คุณปู", 
+                phone: "083-111-2233",
+                age: "4 ปี", 
+                gender: "ผู้", 
+                weight: "28.0 กก.",
+                history: [
+                    { date: "01 ก.ย. 2026", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", note: "อาบน้ำเป่าขนแห้งสนิท" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=100&h=100&fit=crop", 
+                name: "น้องถุงเงิน", 
+                breed: "เฟรนช์บูลด็อก", 
+                owner: "คุณกอล์ฟ", 
+                phone: "082-333-4455",
+                age: "1 ปี 6 เดือน", 
+                gender: "เมีย", 
+                weight: "9.1 กก.",
+                history: [
+                    { date: "15 ส.ค. 2026", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "สพ.ญ.วิไล", note: "ผิวหนังปกติ ระบบหายใจปกติ" }
+                ]
+            },
+            { 
+                img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=100&h=100&fit=crop", 
+                name: "น้องมาร์ลี่", 
+                breed: "ไซบีเรียน ฮัสกี้", 
+                owner: "คุณแนน", 
+                phone: "081-888-9911",
+                age: "2 ปี", 
+                gender: "ผู้ (ทำหมันแล้ว)", 
+                weight: "21.5 กก.",
+                history: [
+                    { date: "10 ก.ค. 2026", service: "💉 ฉีดวัคซีนพิษสุนัขบ้า", doctor: "นพ.สพ.สมชาย", note: "ไม่มีอาการแพ้หลังฉีด" }
+                ]
+            }
+        ];
+
+        let currentStatusFilter = 'ทั้งหมด';
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        // สลับหน้า (คิว / คนไข้)
+        function switchTab(tab) {
+            const btnQueue = document.getElementById('btnQueueTab');
+            const btnPatient = document.getElementById('btnPatientTab');
+            const secQueue = document.getElementById('sectionQueue');
+            const secPatients = document.getElementById('sectionPatients');
+            const dateWrapper = document.getElementById('dateFilterWrapper');
+
+            if(tab === 'queue') {
+                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
+                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
+                secQueue.classList.remove('hidden');
+                secPatients.classList.add('hidden');
+                dateWrapper.classList.remove('hidden');
+                renderTable();
+            } else {
+                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
+                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
+                secPatients.classList.remove('hidden');
+                secQueue.classList.add('hidden');
+                dateWrapper.classList.add('hidden');
+                renderPatientTable();
+            }
+        }
+
+        // ค้นหา patient index จากชื่อสัตว์เลี้ยงในคิว
+        function findPatientIndexByName(petQuery) {
+            let cleanName = petQuery.split('(')[0].trim();
+            let index = patients.findIndex(p => p.name.includes(cleanName) || cleanName.includes(p.name));
+            if(index === -1 && patients.length > 0) {
+                index = 0;
+            }
+            return index;
+        }
+
+        // เปิด Modal สมุดเวชระเบียนสัตวแพทย์
+        function openDoctorNotebook(appointmentIndex) {
+            let app = appointments[appointmentIndex];
+            let pIndex = findPatientIndexByName(app.pet);
+            
+            if(pIndex === -1) {
+                alert('ไม่พบรายชื่อคนไข้ในระบบเวชระเบียน กรุณาเพิ่มข้อมูลคนไข้ก่อน');
+                return;
+            }
+
+            let p = patients[pIndex];
+            document.getElementById('notebookPatientIndex').value = pIndex;
+            document.getElementById('notebookPetImg').src = p.img;
+            document.getElementById('notebookPetTitle').innerText = `${p.name} (${p.breed}) - อายุ: ${p.age}`;
+            document.getElementById('notebookOwnerSub').innerText = `เจ้าของ: ${p.owner} | โทร: ${p.phone} | น้ำหนัก: ${p.weight}`;
+
+            resetNotebookForm();
+            renderNotebookHistory(pIndex);
+
+            document.getElementById('doctorNotebookModal').classList.remove('hidden');
+            document.getElementById('doctorNotebookModal').classList.add('flex');
+        }
+
+        function closeDoctorNotebook() {
+            document.getElementById('doctorNotebookModal').classList.remove('flex');
+            document.getElementById('doctorNotebookModal').classList.add('hidden');
+        }
+
+        function resetNotebookForm() {
+            document.getElementById('notebookHistoryEditIndex').value = "-1";
+            document.getElementById('nbDate').value = "15 ต.ค. 2026";
+            document.getElementById('nbNote').value = "";
+        }
+
+        // เรนเดอร์ประวัติการรักษาในสมุดเวชระเบียน
+        function renderNotebookHistory(pIndex) {
+            let p = patients[pIndex];
+            let container = document.getElementById('notebookHistoryList');
+            container.innerHTML = '';
+
+            if(!p.history || p.history.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-[#D8E6DD]">ยังไม่มีบันทึกประวัติการรักษา</div>`;
+                return;
+            }
+
+            p.history.forEach((h, hIdx) => {
+                let div = document.createElement('div');
