@@ -25,9 +25,12 @@
                 <p class="text-xs text-[#40916C]">ระบบจัดการคิวและตารางนัดหมายอัจฉริยะ</p>
             </div>
         </div>
-        <div class="flex items-center space-x-6 text-sm">
-            <div class="bg-white/80 border border-[#C8DCD0] px-3.5 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
-                <span>📅</span> วันจันทร์ที่ 15 ตุลาคม 2026
+        <div class="flex items-center space-x-4 text-sm">
+            <!-- ช่องเลือกวันที่หลักของระบบ (เปลี่ยนเพื่อดูคิวตามวัน) -->
+            <div class="bg-white/90 border border-[#C8DCD0] px-4 py-1.5 rounded-full text-[#2D6A4F] font-medium shadow-sm flex items-center gap-2">
+                <span>📅</span> 
+                <span>เลือกวันที่:</span>
+                <input type="date" id="filterDate" value="2026-10-15" onchange="renderTable()" class="bg-transparent text-[#1B4332] font-bold focus:outline-none cursor-pointer">
             </div>
             <div class="text-[#2D6A4F] font-medium hidden sm:block">
                 ผู้ใช้งาน : <span class="font-bold text-[#1B4332]">ฝ่ายเวชระเบียน</span>
@@ -58,7 +61,7 @@
         <!-- Status Summary Bar -->
         <div class="flex items-center space-x-2 text-sm bg-[#E9F2EC] px-4 py-3 rounded-xl border border-[#C8DCD0] text-[#1B4332]">
             <span class="text-base">📌</span>
-            <span class="font-semibold">สรุปสถานะวันนี้ :</span>
+            <span class="font-semibold">สรุปสถานะวันที่เลือก :</span>
             <span id="countPending" class="text-[#52B788] font-medium">รอดำเนินการ (0)</span> | 
             <span id="countChecking" class="text-[#2D6A4F] font-medium">กำลังตรวจ (0)</span> | 
             <span id="countDone" class="text-[#1B4332] font-medium">เสร็จสิ้น (0)</span> | 
@@ -115,7 +118,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-600 text-xs mb-1 font-medium">📅 วันที่นัดหมาย</label>
-                    <input type="date" id="inputDate" value="2026-10-12" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332] bg-white">
+                    <input type="date" id="inputDate" class="w-full p-2.5 border border-[#D8E6DD] rounded-xl focus:outline-none focus:border-[#2D6A4F] text-[#1B4332] bg-white cursor-pointer">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -162,32 +165,36 @@
 
     <!-- Footer -->
     <footer class="text-center py-4 text-xs text-[#52B788] bg-[#E2EBE5]/50 border-t border-[#C8DCD0]">
-        Nitiphan Animal Clicnic Management System • GitHub Pages Ready
+        Nitiphan Animal Clinic Management System • GitHub Pages Ready
     </footer>
 
-    <!-- JavaScript สำหรับระบบจัดการคิว, ค้นหา, แก้ไข และลบ -->
+    <!-- JavaScript สำหรับระบบจัดการคิว, วันที่, ค้นหา, แก้ไข และลบ -->
     <script>
-        // ข้อมูลตัวอย่างเริ่มต้น
+        // ข้อมูลตัวอย่างเริ่มต้น (พร้อมระบุวันที่นัดหมาย)
         let appointments = [
-            { time: "10:00-12:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
-            { time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
-            { time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
-            { time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" }
+            { date: "2026-10-15", time: "10:00-12:00", pet: "น้องหมีพู (ชิทู)", owner: "คุณสมชาย (081-234-5678)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "เสร็จสิ้น" },
+            { date: "2026-10-15", time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
+            { date: "2026-10-16", time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
+            { date: "2026-10-17", time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" }
         ];
 
         function renderTable() {
             const tableBody = document.getElementById('tableBody');
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDate = document.getElementById('filterDate').value;
             tableBody.innerHTML = '';
 
-            let filtered = appointments.filter(item => 
-                item.pet.toLowerCase().includes(searchInput) || 
-                item.owner.toLowerCase().includes(searchInput)
-            );
+            // กรองข้อมูลตามวันที่เลือก และ คำค้นหา
+            let filtered = appointments.filter(item => {
+                let matchDate = !selectedDate || item.date === selectedDate;
+                let matchSearch = item.pet.toLowerCase().includes(searchInput) || item.owner.toLowerCase().includes(searchInput);
+                return matchDate && matchSearch;
+            });
 
             let countPending = 0, countChecking = 0, countDone = 0;
 
-            appointments.forEach(item => {
+            // นับสถิติเฉพาะของวันที่เลือก
+            appointments.filter(item => item.date === selectedDate).forEach(item => {
                 if(item.status === "รอเข้ารับบริการ") countPending++;
                 if(item.status === "กำลังตรวจ") countChecking++;
                 if(item.status === "เสร็จสิ้น") countDone++;
@@ -228,6 +235,8 @@
             document.getElementById('editIndex').value = "-1";
             document.getElementById('inputPet').value = "";
             document.getElementById('inputOwner').value = "";
+            // กำหนดวันที่เริ่มต้นใน Modal เป็นวันที่กำลังเลือกดูอยู่บน Header
+            document.getElementById('inputDate').value = document.getElementById('filterDate').value;
             document.getElementById('inputTimeStart').value = "10:00";
             document.getElementById('inputTimeEnd').value = "11:00";
             document.getElementById('inputStatus').value = "รอเข้ารับบริการ";
@@ -241,6 +250,7 @@
             document.getElementById('editIndex').value = index;
             document.getElementById('inputPet').value = item.pet;
             document.getElementById('inputOwner').value = item.owner;
+            document.getElementById('inputDate').value = item.date || "2026-10-15";
             
             let times = item.time.split('-');
             if(times.length === 2) {
@@ -265,18 +275,20 @@
             let editIndex = parseInt(document.getElementById('editIndex').value);
             let pet = document.getElementById('inputPet').value.trim();
             let owner = document.getElementById('inputOwner').value.trim();
+            let date = document.getElementById('inputDate').value;
             let timeStart = document.getElementById('inputTimeStart').value;
             let timeEnd = document.getElementById('inputTimeEnd').value;
             let service = document.getElementById('inputService').value;
             let doctor = document.getElementById('inputDoctor').value;
             let status = document.getElementById('inputStatus').value;
 
-            if(!pet || !owner) {
-                alert('กรุณากรอกชื่อสัตว์เลี้ยงและชื่อเจ้าของให้ครบถ้วน');
+            if(!pet || !owner || !date) {
+                alert('กรุณากรอกวันที่ ชื่อสัตว์เลี้ยง และชื่อเจ้าของให้ครบถ้วน');
                 return;
             }
 
             let newItem = {
+                date: date,
                 time: `${timeStart}-${timeEnd}`,
                 pet: pet,
                 owner: owner,
@@ -290,6 +302,9 @@
             } else {
                 appointments[editIndex] = newItem; // อัปเดตรายการเดิม
             }
+
+            // ตั้งค่าวันที่บน Header ให้ตรงกับวันที่บันทึกล่าสุด เพื่อให้เห็นข้อมูลทันที
+            document.getElementById('filterDate').value = date;
 
             closeModal();
             renderTable();
