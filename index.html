@@ -10,12 +10,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; }
-        /* สไตล์สำหรับสั่งปริ้นท์เอกสารเวชระเบียน */
+        /* สไตล์พิเศษสำหรับการสั่งพิมพ์เอกสารผ่านคอมพิวเตอร์ */
         @media print {
-            body * { visibility: hidden; }
-            #doctorNotebookModal, #doctorNotebookModal * { visibility: visible; }
-            #doctorNotebookModal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; }
-            .no-print { display: none !important; }
+            body * {
+                visibility: hidden;
+            }
+            #doctorNotebookModal, #doctorNotebookModal * {
+                visibility: visible;
+            }
+            #doctorNotebookModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -278,9 +290,10 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: สมุดตรวจรักษาของสัตวแพทย์ ================= -->
+    <!-- ================= MODAL: สมุดตรวจรักษาของสัตวแพทย์ (เชื่อมต่อ History คนไข้) ================= -->
     <div id="doctorNotebookModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-[#D8E6DD] flex flex-col max-h-[90vh]">
+            <!-- Header ส่วนหัวของสมุดตรวจ -->
             <div class="flex justify-between items-center pb-4 border-b border-[#D8E6DD]">
                 <div class="flex items-center space-x-3">
                     <img id="notebookPetImg" src="" alt="Pet" class="w-14 h-14 rounded-full object-cover border-2 border-[#2D6A4F] shadow-sm">
@@ -297,8 +310,9 @@
                 </div>
             </div>
 
+            <!-- Content Area -->
             <div class="flex-1 overflow-y-auto py-4 space-y-6 pr-1">
-                <!-- ฟอร์มบันทึก/แก้ไขประวัติการรักษา -->
+                <!-- ฟอร์มกรอกบันทึก/แก้ไขการรักษาใหม่ -->
                 <div class="bg-[#F8FAF8] p-4 rounded-2xl border border-[#D8E6DD] space-y-3 no-print shadow-xs">
                     <h4 class="text-xs font-bold text-[#2D6A4F] uppercase tracking-wider flex items-center gap-1.5">
                         <span>📝</span> บันทึกเวชระเบียน / การรักษาครั้งใหม่
@@ -340,15 +354,16 @@
                     </div>
                 </div>
 
-                <!-- รายการประวัติการรักษาทั้งหมด -->
+                <!-- รายการประวัติการรักษาทั้งหมดของน้อง (History) -->
                 <div>
                     <h4 class="text-xs font-bold text-[#1B4332] uppercase tracking-wider mb-3">🗂️ ประวัติการรักษาที่บันทึกไว้ทั้งหมดในระบบ</h4>
                     <div id="notebookHistoryList" class="space-y-3">
-                        <!-- เรนเดอร์ด้วย JS -->
+                        <!-- เรนเดอร์ด้วย JavaScript -->
                     </div>
                 </div>
             </div>
 
+            <!-- Footer ของ Modal -->
             <div class="pt-4 border-t border-[#D8E6DD] flex justify-between items-center no-print">
                 <span class="text-xs text-gray-400">นิธิพันธ์สัตวแพทย์ - เวชระเบียนอิเล็กทรอนิกส์</span>
                 <button onclick="closeDoctorNotebook()" class="px-5 py-2 bg-[#2D6A4F] text-white rounded-xl hover:bg-[#1B4332] shadow-sm cursor-pointer text-sm font-medium">ปิดหน้าต่าง</button>
@@ -369,367 +384,4 @@
             { date: "2026-10-15", time: "15:00-18:00", pet: "น้องทองกวาว (เปอร์เซีย)", owner: "คุณหญิง (089-999-8888)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "กำลังตรวจ" },
             { date: "2026-10-15", time: "16:40-18:00", pet: "น้องเฉาก๊วย (แมวไทย)", owner: "คุณมาศ (085-555-4444)", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" },
             { date: "2026-10-17", time: "12:00-14:00", pet: "น้องลัคกี้ (โกลเด้น)", owner: "คุณปู (083-111-2233)", service: "🛁 อาบน้ำตัดขน", doctor: "ทีม Grooming", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "10:30-11:00", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล", status: "รอเข้ารับบริการ" },
-            { date: "2026-10-15", time: "11:00-11:30", pet: "น้องมาร์ลี่ (ไซบีเรียน)", owner: "คุณแนน (081-888-9911)", service: "🩺 ตรวจสุขภาพประจำปี", doctor: "นพ.สพ.สมชาย", status: "รอเข้ารับบริการ" }
-        ];
-
-        // ฐานข้อมูลรายชื่อคนไข้ พร้อมประวัติการรักษา (history)
-        let patients = [
-            { img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100&h=100&fit=crop", name: "น้องหมีพู", breed: "ชิทู", owner: "คุณสมชาย", phone: "081-234-5678", age: "3 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "5.2 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] },
-            { img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop", name: "น้องทองกวาว", breed: "เปอร์เซีย", owner: "คุณหญิง", phone: "089-999-8888", age: "2 ปี", gender: "เมีย", weight: "3.8 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] },
-            { img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=100&h=100&fit=crop", name: "น้องเฉาก๊วย", breed: "แมวไทย", owner: "คุณมาศ", phone: "085-555-4444", age: "5 ปี", gender: "ผู้", weight: "4.5 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] },
-            { img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop", name: "น้องลัคกี้", breed: "โกลเด้น รีทรีฟเวอร์", owner: "คุณปู", phone: "083-111-2233", age: "4 ปี", gender: "ผู้", weight: "28.0 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] },
-            { img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=100&h=100&fit=crop", name: "น้องถุงเงิน", breed: "เฟรนช์บูลด็อก", owner: "คุณกอล์ฟ", phone: "082-333-4455", age: "1 ปี 6 เดือน", gender: "เมีย", weight: "9.1 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] },
-            { img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=100&h=100&fit=crop", name: "น้องมาร์ลี่", breed: "ไซบีเรียน ฮัสกี้", owner: "คุณแนน", phone: "081-888-9911", age: "2 ปี", gender: "ผู้ (ทำหมันแล้ว)", weight: "21.5 กก.", history: [{ date: "15 ต.ค. 2026", service: "💊 ทำแผล / ฉีดยา", doctor: "นพ.สพ.สมชาย", note: "แผลจากการกัด ทำความสะอาดและฉีดยาแก้อักเสบ" }] }
-        ];
-
-        let currentStatusFilter = 'ทั้งหมด';
-        let currentPage = 1;
-        const rowsPerPage = 10;
-
-        // สลับหน้า (คิว / คนไข้)
-        function switchTab(tab) {
-            const btnQueue = document.getElementById('btnQueueTab');
-            const btnPatient = document.getElementById('btnPatientTab');
-            const secQueue = document.getElementById('sectionQueue');
-            const secPatients = document.getElementById('sectionPatients');
-            const dateWrapper = document.getElementById('dateFilterWrapper');
-
-            if(tab === 'queue') {
-                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
-                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
-                secQueue.classList.remove('hidden');
-                secPatients.classList.add('hidden');
-                dateWrapper.classList.remove('hidden');
-                renderTable();
-            } else {
-                btnPatient.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-[#2D6A4F] text-white shadow-sm text-xs";
-                btnQueue.className = "px-4 py-1.5 rounded-full font-medium transition cursor-pointer bg-white/90 text-[#2D6A4F] border border-[#C8DCD0] text-xs hover:bg-[#F0F5F1]";
-                secPatients.classList.remove('hidden');
-                secQueue.classList.add('hidden');
-                dateWrapper.classList.add('hidden');
-                renderPatientTable();
-            }
-        }
-
-        // ค้นหา patient index จากชื่อในคิว
-        function findPatientIndexByName(petQuery) {
-            let cleanName = petQuery.split('(')[0].trim();
-            let index = patients.findIndex(p => p.name.includes(cleanName) || cleanName.includes(p.name));
-            if(index === -1 && patients.length > 0) index = 0;
-            return index;
-        }
-
-        // เปิด Modal สมุดตรวจรักษาของหมอ (แทนที่ปุ่ม ➡️)
-        function openDoctorNotebook(appointmentIndex) {
-            let app = appointments[appointmentIndex];
-            let pIndex = findPatientIndexByName(app.pet);
-            
-            if(pIndex === -1) {
-                alert('ไม่พบรายชื่อคนไข้ในระบบเวชระเบียน');
-                return;
-            }
-
-            let p = patients[pIndex];
-            document.getElementById('notebookPatientIndex').value = pIndex;
-            document.getElementById('notebookPetImg').src = p.img;
-            document.getElementById('notebookPetTitle').innerText = `${p.name} (${p.breed})`;
-            document.getElementById('notebookOwnerSub').innerText = `เจ้าของ: ${p.owner} | โทร: ${p.phone} | น้ำหนัก: ${p.weight}`;
-
-            resetNotebookForm();
-            renderNotebookHistory(pIndex);
-
-            document.getElementById('doctorNotebookModal').classList.remove('hidden');
-            document.getElementById('doctorNotebookModal').classList.add('flex');
-        }
-
-        function closeDoctorNotebook() {
-            document.getElementById('doctorNotebookModal').classList.remove('flex');
-            document.getElementById('doctorNotebookModal').classList.add('hidden');
-        }
-
-        function resetNotebookForm() {
-            document.getElementById('notebookHistoryEditIndex').value = "-1";
-            document.getElementById('nbDate').value = "15 ต.ค. 2026";
-            document.getElementById('nbNote').value = "";
-        }
-
-        function renderNotebookHistory(pIndex) {
-            let p = patients[pIndex];
-            let container = document.getElementById('notebookHistoryList');
-            container.innerHTML = '';
-
-            if(!p.history || p.history.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs bg-white rounded-xl border border-[#D8E6DD]">ยังไม่มีบันทึกประวัติการรักษา</div>`;
-                return;
-            }
-
-            p.history.forEach((h, hIdx) => {
-                let div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-xl border border-[#D8E6DD] text-xs space-y-1.5 shadow-xs";
-                div.innerHTML = `
-                    <div class="flex justify-between items-center font-bold text-[#1B4332]">
-                        <span class="text-sm">🔹 ${h.service}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-500 font-normal">📅 ${h.date}</span>
-                            <button onclick="editNotebookHistory(${pIndex}, ${hIdx})" class="px-2 py-1 bg-[#F0F5F1] hover:bg-[#E2EBE5] text-[#2D6A4F] rounded-lg cursor-pointer no-print font-medium">✏️ แก้ไข</button>
-                        </div>
-                    </div>
-                    <div class="text-gray-600">🩺 แพทย์ผู้ตรวจ: <span class="font-medium text-[#2D6A4F]">${h.doctor}</span></div>
-                    <div class="text-gray-700 bg-[#FAFCFA] p-2.5 rounded-lg border border-[#E9F2EC] mt-1">📝 <b>บันทึกการรักษา / ผลวินิจฉัย:</b> ${h.note || '-'}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function editNotebookHistory(pIndex, hIdx) {
-            let h = patients[pIndex].history[hIdx];
-            document.getElementById('notebookHistoryEditIndex').value = hIdx;
-            document.getElementById('nbDate').value = h.date;
-            document.getElementById('nbService').value = h.service;
-            document.getElementById('nbDoctor').value = h.doctor;
-            document.getElementById('nbNote').value = h.note;
-            document.getElementById('nbNote').focus();
-        }
-
-        function saveDoctorNote() {
-            let pIndex = parseInt(document.getElementById('notebookPatientIndex').value);
-            let hEditIdx = parseInt(document.getElementById('notebookHistoryEditIndex').value);
-            let date = document.getElementById('nbDate').value.trim();
-            let service = document.getElementById('nbService').value;
-            let doctor = document.getElementById('nbDoctor').value;
-            let note = document.getElementById('nbNote').value.trim();
-
-            if(!note) {
-                alert('กรุณากรอกบันทึกอาการหรือผลการรักษาก่อนบันทึก');
-                return;
-            }
-
-            let newRecord = { date, service, doctor, note };
-
-            if(hEditIdx === -1) {
-                patients[pIndex].history.unshift(newRecord);
-            } else {
-                patients[pIndex].history[hEditIdx] = newRecord;
-            }
-
-            resetNotebookForm();
-            renderNotebookHistory(pIndex);
-            alert('บันทึกเวชระเบียนเรียบร้อยแล้ว');
-        }
-
-        function filterByStatus(status) {
-            currentStatusFilter = status;
-            currentPage = 1;
-            
-            ['filterAll', 'filterPending', 'filterChecking', 'filterDone', 'filterCancel'].forEach(id => {
-                let el = document.getElementById(id);
-                el.className = "cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/60 font-medium transition text-xs";
-                if(id === 'filterAll') el.classList.add('text-[#1B4332]');
-                if(id === 'filterPending') el.classList.add('text-[#52B788]');
-                if(id === 'filterChecking') el.classList.add('text-[#2D6A4F]');
-                if(id === 'filterDone') el.classList.add('text-[#1B4332]');
-                if(id === 'filterCancel') el.classList.add('text-gray-500');
-            });
-
-            let activeId = 'filterAll';
-            if(status === 'รอเข้ารับบริการ') activeId = 'filterPending';
-            if(status === 'กำลังตรวจ') activeId = 'filterChecking';
-            if(status === 'เสร็จสิ้น') activeId = 'filterDone';
-            if(status === 'ยกเลิก') activeId = 'filterCancel';
-
-            let activeEl = document.getElementById(activeId);
-            activeEl.className = "cursor-pointer px-2.5 py-1 rounded-lg bg-[#2D6A4F] text-white font-medium text-xs transition shadow-sm";
-
-            renderTable();
-        }
-
-        function renderTable() {
-            const tableBody = document.getElementById('tableBody');
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const selectedDate = document.getElementById('filterDate').value;
-            tableBody.innerHTML = '';
-
-            let dateAppointments = appointments.filter(item => !selectedDate || item.date === selectedDate);
-            
-            let countPending = 0, countChecking = 0, countDone = 0, countCancel = 0;
-            dateAppointments.forEach(item => {
-                if(item.status === "รอเข้ารับบริการ") countPending++;
-                if(item.status === "กำลังตรวจ") countChecking++;
-                if(item.status === "เสร็จสิ้น") countDone++;
-                if(item.status === "ยกเลิก") countCancel++;
-            });
-
-            document.getElementById('countPending').innerText = countPending;
-            document.getElementById('countChecking').innerText = countChecking;
-            document.getElementById('countDone').innerText = countDone;
-            document.getElementById('countCancel').innerText = countCancel;
-
-            let filtered = dateAppointments.filter(item => {
-                let matchStatus = currentStatusFilter === 'ทั้งหมด' || item.status === currentStatusFilter;
-                let matchSearch = item.pet.toLowerCase().includes(searchInput) || item.owner.toLowerCase().includes(searchInput);
-                return matchStatus && matchSearch;
-            });
-
-            let totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
-            let startIdx = (currentPage - 1) * rowsPerPage;
-            let paginatedData = filtered.slice(startIdx, startIdx + rowsPerPage);
-
-            document.getElementById('recordCount').innerText = `แสดง ${filtered.length > 0 ? startIdx + 1 : 0} ถึง ${Math.min(startIdx + rowsPerPage, filtered.length)} จากทั้งหมด ${filtered.length} รายการ`;
-
-            paginatedData.forEach((item) => {
-                let realIndex = appointments.indexOf(item);
-                let badgeClass = "bg-[#D8F3DC] text-[#1B4332]";
-                if(item.status === "กำลังตรวจ") badgeClass = "bg-[#52B788] text-white";
-                if(item.status === "เสร็จสิ้น") badgeClass = "bg-[#2D6A4F] text-white";
-                if(item.status === "ยกเลิก") badgeClass = "bg-gray-200 text-gray-600 line-through";
-
-                let row = document.createElement('tr');
-                row.className = "hover:bg-[#F8FAF8] transition";
-                row.innerHTML = `
-                    <td class="py-3.5 px-4 font-medium">${item.time}</td>
-                    <td class="py-3.5 px-4 font-medium">${item.pet}</td>
-                    <td class="py-3.5 px-4 text-gray-600">${item.owner}</td>
-                    <td class="py-3.5 px-4 text-gray-600">${item.service}</td>
-                    <td class="py-3.5 px-4 text-gray-600">${item.doctor}</td>
-                    <td class="py-3.5 px-4"><span class="${badgeClass} px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">${item.status === 'เสร็จสิ้น' ? '✓' : item.status === 'กำลังตรวจ' ? '🟢' : item.status === 'ยกเลิก' ? '❌' : '⏳'} ${item.status}</span></td>
-                    <td class="py-3.5 px-4 text-center space-x-1">
-                        <button onclick="openEditModal(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-gray-600 transition cursor-pointer" title="แก้ไขข้อมูล">✏️</button>
-                        <button onclick="deleteAppointment(${realIndex})" class="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition cursor-pointer" title="ยกเลิกรายการ">🗑️</button>
-                        <button onclick="openDoctorNotebook(${realIndex})" class="p-1.5 hover:bg-[#E2EBE5] rounded-lg text-[#2D6A4F] transition cursor-pointer font-bold" title="สมุดตรวจรักษาของหมอ">🩺</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const container = document.getElementById('paginationContainer');
-            container.innerHTML = '';
-
-            let prevBtn = document.createElement('button');
-            prevBtn.innerHTML = '◄ ก่อนหน้า';
-            prevBtn.className = `px-3 py-1 bg-white border border-[#D8E6DD] rounded-lg font-medium text-xs ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'text-[#2D6A4F] hover:bg-[#F0F5F1] cursor-pointer'}`;
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
-            container.appendChild(prevBtn);
-
-            for (let i = 1; i <= totalPages; i++) {
-                let pageBtn = document.createElement('button');
-                pageBtn.innerText = i;
-                pageBtn.className = `px-3 py-1 rounded-lg font-medium text-xs transition cursor-pointer ${currentPage === i ? 'bg-[#2D6A4F] text-white shadow-sm' : 'bg-white border border-[#D8E6DD] text-[#2D6A4F] hover:bg-[#F0F5F1]'}`;
-                pageBtn.onclick = () => { currentPage = i; renderTable(); };
-                container.appendChild(pageBtn);
-            }
-
-            let nextBtn = document.createElement('button');
-            nextBtn.innerHTML = 'ถัดไป ►';
-            nextBtn.className = `px-3 py-1 bg-white border border-[#D8E6DD] rounded-lg font-medium text-xs ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'text-[#2D6A4F] hover:bg-[#F0F5F1] cursor-pointer'}`;
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
-            container.appendChild(nextBtn);
-        }
-
-        function openAddModal() {
-            document.getElementById('modalTitle').innerText = "เพิ่มนัดหมายใหม่";
-            document.getElementById('editIndex').value = "-1";
-            document.getElementById('inputPet').value = "";
-            document.getElementById('inputOwner').value = "";
-            document.getElementById('inputDate').value = document.getElementById('filterDate').value;
-            document.getElementById('inputTimeStart').value = "10:00";
-            document.getElementById('inputTimeEnd').value = "11:00";
-            document.getElementById('inputStatus').value = "รอเข้ารับบริการ";
-            document.getElementById('appointment-modal').classList.remove('hidden');
-            document.getElementById('appointment-modal').classList.add('flex');
-        }
-
-        function openEditModal(index) {
-            let item = appointments[index];
-            document.getElementById('modalTitle').innerText = "แก้ไขข้อมูลนัดหมาย";
-            document.getElementById('editIndex').value = index;
-            document.getElementById('inputPet').value = item.pet;
-            document.getElementById('inputOwner').value = item.owner;
-            document.getElementById('inputDate').value = item.date || "2026-10-15";
-            
-            let times = item.time.split('-');
-            if(times.length === 2) {
-                document.getElementById('inputTimeStart').value = times[0].trim();
-                document.getElementById('inputTimeEnd').value = times[1].trim();
-            }
-
-            document.getElementById('inputService').value = item.service;
-            document.getElementById('inputDoctor').value = item.doctor;
-            document.getElementById('inputStatus').value = item.status;
-
-            document.getElementById('appointment-modal').classList.remove('hidden');
-            document.getElementById('appointment-modal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('appointment-modal').classList.remove('flex');
-            document.getElementById('appointment-modal').classList.add('hidden');
-        }
-
-        function saveAppointment() {
-            let editIndex = parseInt(document.getElementById('editIndex').value);
-            let pet = document.getElementById('inputPet').value.trim();
-            let owner = document.getElementById('inputOwner').value.trim();
-            let date = document.getElementById('inputDate').value;
-            let timeStart = document.getElementById('inputTimeStart').value;
-            let timeEnd = document.getElementById('inputTimeEnd').value;
-            let service = document.getElementById('inputService').value;
-            let doctor = document.getElementById('inputDoctor').value;
-            let status = document.getElementById('inputStatus').value;
-
-            if(!pet || !owner || !date) {
-                alert('กรุณากรอกวันที่ ชื่อสัตว์เลี้ยง และชื่อเจ้าของให้ครบถ้วน');
-                return;
-            }
-
-            let newItem = {
-                date: date,
-                time: `${timeStart}-${timeEnd}`,
-                pet: pet,
-                owner: owner,
-                service: service,
-                doctor: doctor,
-                status: status
-            };
-
-            if(editIndex === -1) {
-                appointments.unshift(newItem);
-                currentPage = 1;
-            } else {
-                appointments[editIndex] = newItem;
-            }
-
-            document.getElementById('filterDate').value = date;
-            closeModal();
-            renderTable();
-        }
-
-        function deleteAppointment(index) {
-            if(confirm('คุณต้องการเปลี่ยนสถานะรายการนี้เป็น "ยกเลิก" ใช่หรือไม่?')) {
-                appointments[index].status = "ยกเลิก";
-                renderTable();
-            }
-        }
-
-        function refreshData() {
-            document.getElementById('searchInput').value = '';
-            currentStatusFilter = 'ทั้งหมด';
-            currentPage = 1;
-            filterByStatus('ทั้งหมด');
-            alert('รีเฟรชข้อมูลคิวล่าสุดเรียบร้อยแล้ว');
-        }
-
-        // โหลดตารางครั้งแรก
-        renderTable();
-    </script>
-</body>
-</html>
+            { date: "2026-10-15", time: "10:30-11:00", pet: "น้องถุงเงิน (เฟรนช์บูลด็อก)", owner: "คุณกอล์ฟ (082-333-4455)", service: "💉 ฉีดวัคซีนรวม", doctor: "สพ.ญ.วิไล
